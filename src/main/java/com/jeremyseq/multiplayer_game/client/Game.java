@@ -1,6 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.Client;
+import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.swing.*;
@@ -93,28 +94,31 @@ public class Game extends JPanel implements ActionListener {
         // use this space to update the state of your game or animation
         // before the graphics are redrawn.
 
-        Vec2 dir = new Vec2(0, 0);
-        if (keyHandler.leftPressed) {
-            dir = dir.add(new Vec2(-1, 0));
-        }
-        if (keyHandler.rightPressed) {
-            dir = dir.add(new Vec2(1, 0));
-        }
-        if (keyHandler.upPressed) {
-            dir = dir.add(new Vec2(0, -1));
-        }
-        if (keyHandler.downPressed) {
-            dir = dir.add(new Vec2(0, 1));
+        if (this.clientPlayer.attacking == AttackFacing.FALSE) {
+            Vec2 dir = new Vec2(0, 0);
+            if (keyHandler.leftPressed) {
+                dir = dir.add(new Vec2(-1, 0));
+            }
+            if (keyHandler.rightPressed) {
+                dir = dir.add(new Vec2(1, 0));
+            }
+            if (keyHandler.upPressed) {
+                dir = dir.add(new Vec2(0, -1));
+            }
+            if (keyHandler.downPressed) {
+                dir = dir.add(new Vec2(0, 1));
+            }
+
+            if (dir.x != 0 || dir.y != 0) {
+                this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
+            }
+            try {
+                client.out.writeUTF("$movement:" + dir.normalize().multiply(SPEED).toPacketString());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
-        if (dir.x != 0 || dir.y != 0) {
-            this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
-        }
-        try {
-            client.out.writeUTF("$movement:" + dir.normalize().multiply(SPEED).toPacketString());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
 
         // calling repaint() will trigger paintComponent() to run again,
         // which will refresh/redraw the graphics.

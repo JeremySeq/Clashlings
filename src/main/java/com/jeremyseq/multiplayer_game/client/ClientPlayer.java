@@ -30,6 +30,32 @@ public class ClientPlayer {
 
         int animation = 0;
 
+        if (this == game.clientPlayer) {
+            g.setColor(Color.WHITE);
+            if (game.keyHandler.leftPressed) {
+                animation = 1;
+                flipped = true;
+            } else if (game.keyHandler.rightPressed) {
+                animation = 1;
+                flipped = false;
+            } else if (game.keyHandler.upPressed) {
+                animation = 1;
+            } else if (game.keyHandler.downPressed) {
+                animation = 1;
+            }
+
+        } else {
+            g.setColor(Color.RED);
+            if (deltaMovement.x != 0 || deltaMovement.y != 0) {
+                animation = 1;
+            }
+            if (deltaMovement.x < 0) {
+                flipped = true;
+            } else if (deltaMovement.x > 0) {
+                flipped = false;
+            }
+        }
+
         if (attacking != AttackFacing.FALSE) {
             animation = 2;
             if (attacking == AttackFacing.UP) {
@@ -39,37 +65,6 @@ public class ClientPlayer {
             } else if (attacking == AttackFacing.LEFT) {
                 flipped = true;
             } else if (attacking == AttackFacing.RIGHT) {
-                flipped = false;
-            }
-        }
-
-        if (this == game.clientPlayer) {
-            g.setColor(Color.WHITE);
-            if (game.keyHandler.leftPressed) {
-                animation = 1;
-                attacking = AttackFacing.FALSE;
-                flipped = true;
-            } else if (game.keyHandler.rightPressed) {
-                animation = 1;
-                attacking = AttackFacing.FALSE;
-                flipped = false;
-            } else if (game.keyHandler.upPressed) {
-                attacking = AttackFacing.FALSE;
-                animation = 1;
-            } else if (game.keyHandler.downPressed) {
-                attacking = AttackFacing.FALSE;
-                animation = 1;
-            }
-
-        } else {
-            g.setColor(Color.RED);
-            if (deltaMovement.x != 0 || deltaMovement.y != 0) {
-                attacking = AttackFacing.FALSE;
-                animation = 1;
-            }
-            if (deltaMovement.x < 0) {
-                flipped = true;
-            } else if (deltaMovement.x > 0) {
                 flipped = false;
             }
         }
@@ -90,6 +85,7 @@ public class ClientPlayer {
     }
 
     public void attack(AttackFacing attackSide) {
+        this.deltaMovement = new Vec2(0, 0);
         attacking = attackSide;
     }
 }
