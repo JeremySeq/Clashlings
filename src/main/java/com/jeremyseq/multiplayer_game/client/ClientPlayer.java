@@ -70,7 +70,8 @@ public class ClientPlayer {
         }
 
         // draw animation
-        boolean finished = this.spriteRenderer.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
+        Vec2 renderPos = game.getRenderPositionFromWorldPosition(position);
+        boolean finished = this.spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped);
 
         if (finished && attacking != AttackState.FALSE) {
             attacking = AttackState.FALSE;
@@ -81,7 +82,7 @@ public class ClientPlayer {
         // draw name
         g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
         Rectangle2D bounds = g.getFont().getStringBounds(username, g.getFontMetrics().getFontRenderContext());
-        g.drawString(username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 25));
+        g.drawString(username, (int) ((int) renderPos.x - bounds.getWidth()/2), (int) ((int) renderPos.y + bounds.getHeight() + 25));
     }
 
     public void attack(AttackState attackSide) {

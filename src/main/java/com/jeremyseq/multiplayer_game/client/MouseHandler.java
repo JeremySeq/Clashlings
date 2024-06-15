@@ -24,7 +24,8 @@ public class MouseHandler implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         Point mousePos = e.getPoint();
-        Vec2 playerToMouseVec = new Vec2(mousePos.x - game.clientPlayer.position.x, mousePos.y - game.clientPlayer.position.y).normalize();
+        Vec2 worldMousePos = game.getWorldPositionFromRenderPosition(new Vec2(mousePos.x, mousePos.y));
+        Vec2 playerToMouseVec = new Vec2(worldMousePos.x - game.clientPlayer.position.x, worldMousePos.y - game.clientPlayer.position.y).normalize();
         if (!playerToMouseVec.equals(new Vec2(0, 0))) {
             boolean right = true;
             boolean up = true;

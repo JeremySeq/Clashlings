@@ -25,6 +25,7 @@ public class Game extends JPanel implements ActionListener {
 
     public KeyHandler keyHandler = new KeyHandler();
     public MouseHandler mouseHandler = new MouseHandler(this);
+    public LevelRenderer levelRenderer = new LevelRenderer(this);
 
     private Timer timer;
 
@@ -82,10 +83,23 @@ public class Game extends JPanel implements ActionListener {
     private void drawBackground(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
+        levelRenderer.draw(g, this);
 
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
         }
+    }
+
+    public Vec2 getRenderPositionFromWorldPosition(Vec2 vec2) {
+        vec2 = vec2.add(new Vec2(WIDTH/2f, HEIGHT/2f));
+        vec2 = vec2.subtract(clientPlayer.position);
+        return vec2;
+    }
+
+    public Vec2 getWorldPositionFromRenderPosition(Vec2 vec2) {
+        vec2 = vec2.add(clientPlayer.position);
+        vec2 = vec2.subtract(new Vec2(WIDTH/2f, HEIGHT/2f));
+        return vec2;
     }
 
     @Override
