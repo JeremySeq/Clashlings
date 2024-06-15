@@ -8,7 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 
 public class ClientPlayer {
-    public final SpriteLoader spriteLoader = new SpriteLoader(
+    public final SpriteRenderer spriteRenderer = new SpriteRenderer(
             "/TinySwordsPack/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png",
             8, 6, 192, 120);
     public final String username;
@@ -70,7 +70,7 @@ public class ClientPlayer {
         }
 
         // draw animation
-        boolean finished = this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
+        boolean finished = this.spriteRenderer.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
 
         if (finished && attacking != AttackState.FALSE) {
             attacking = AttackState.FALSE;

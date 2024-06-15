@@ -7,7 +7,7 @@ import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.Objects;
 
-public class SpriteLoader {
+public class SpriteRenderer {
     private final String imageFile;
     private BufferedImage image;
     private int frameCounter = 0;
@@ -22,7 +22,7 @@ public class SpriteLoader {
 
     private int playingAnimation;
 
-    public SpriteLoader(String imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
+    public SpriteRenderer(String imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
         this.imageFile = imageFile;
         this.framesPerAnimation = framesPerAnimation;
         this.animationCount = animationCount;
