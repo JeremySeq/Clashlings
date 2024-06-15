@@ -98,17 +98,22 @@ public class Game extends JPanel implements ActionListener {
         // use this space to update the state of your game or animation
         // before the graphics are redrawn.
 
+        Vec2 dir = new Vec2(0, 0);
         if (keyHandler.leftPressed) {
-            clientPlayer.position.x -= SPEED;
+            dir = dir.add(new Vec2(-1, 0));
         }
         if (keyHandler.rightPressed) {
-            clientPlayer.position.x += SPEED;
+            dir = dir.add(new Vec2(1, 0));
         }
         if (keyHandler.upPressed) {
-            clientPlayer.position.y -= SPEED;
+            dir = dir.add(new Vec2(0, -1));
         }
         if (keyHandler.downPressed) {
-            clientPlayer.position.y += SPEED;
+            dir = dir.add(new Vec2(0, 1));
+        }
+
+        if (dir.x != 0 || dir.y != 0) {
+            this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
         }
 
         // calling repaint() will trigger paintComponent() to run again,
