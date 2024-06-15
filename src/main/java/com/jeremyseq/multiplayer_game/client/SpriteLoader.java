@@ -41,7 +41,7 @@ public class SpriteLoader {
         }
     }
 
-    public void drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y) {
+    public void drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped) {
         loadImage();
 
         if (animation != playingAnimation) {
@@ -59,11 +59,21 @@ public class SpriteLoader {
             }
         }
 
-        g.drawImage(
-                this.image,
-                x - drawSize/2, y - drawSize/2, x + drawSize/2, y + drawSize/2,
-                animationFrame*tileWidth, animation*tileHeight, animationFrame*tileWidth+tileWidth, animation*tileHeight+tileHeight,
-                imageObserver
-        );
+        if (flipped) {
+            g.drawImage(
+                    this.image,
+                    x + drawSize/2, y - drawSize/2, x - drawSize/2, y + drawSize/2,
+                    animationFrame*tileWidth, animation*tileHeight, animationFrame*tileWidth+tileWidth, animation*tileHeight+tileHeight,
+                    imageObserver
+            );
+        } else {
+            g.drawImage(
+                    this.image,
+                    x - drawSize/2, y - drawSize/2, x + drawSize/2, y + drawSize/2,
+                    animationFrame*tileWidth, animation*tileHeight, animationFrame*tileWidth+tileWidth, animation*tileHeight+tileHeight,
+                    imageObserver
+            );
+        }
+
     }
 }

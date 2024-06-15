@@ -22,7 +22,7 @@ public class Game extends JPanel implements ActionListener {
 
     public ArrayList<ClientPlayer> players = new ArrayList<>();
 
-    private KeyHandler keyHandler = new KeyHandler();
+    public KeyHandler keyHandler = new KeyHandler();
 
     private Timer timer;
 

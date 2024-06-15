@@ -14,6 +14,7 @@ public class ClientPlayer {
     public final String username;
     public final Game game;
     public Vec2 position;
+    private boolean flipped;
 
     private int hitboxSize = 65;
 
@@ -24,13 +25,34 @@ public class ClientPlayer {
     }
 
     public void draw(Graphics g, ImageObserver imageObserver) {
-        this.spriteLoader.drawAnimation(g, imageObserver, 0, (int) position.x, (int) position.y);
+
+        int animation = 0;
+
         if (this == game.clientPlayer) {
             g.setColor(Color.WHITE);
+
+            if (game.keyHandler.leftPressed) {
+                animation = 1;
+                flipped = true;
+            } else if (game.keyHandler.rightPressed) {
+                animation = 1;
+                flipped = false;
+            } else if (game.keyHandler.upPressed) {
+                animation = 1;
+            } else if (game.keyHandler.downPressed) {
+                animation = 1;
+            }
+
         } else {
             g.setColor(Color.RED);
         }
+
+        // draw animation
+        this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
+
 //        g.drawRect((int) (position.x-hitboxSize/2), (int) (position.y-hitboxSize/2), hitboxSize, hitboxSize);
+
+        // draw name
         g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
         Rectangle2D bounds = g.getFont().getStringBounds(username, g.getFontMetrics().getFontRenderContext());
         g.drawString(username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 25));
