@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 public class Game extends JPanel implements ActionListener {
 
-    public static final int WIDTH = 640;
-    public static final int HEIGHT = 900;
+    public static final int WIDTH = 832;
+    public static final int HEIGHT = 832;
     private static final float SPEED = 5;
 
     public final int DELAY = 20;
