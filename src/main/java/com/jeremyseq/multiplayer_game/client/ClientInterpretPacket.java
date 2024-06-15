@@ -26,7 +26,7 @@ public class ClientInterpretPacket {
                 }
             }
             if (respectivePlayer == null) {
-                respectivePlayer = new ClientPlayer(username, pos);
+                respectivePlayer = new ClientPlayer(game, username, pos);
                 game.players.add(respectivePlayer);
             } else {
                 respectivePlayer.position = pos;

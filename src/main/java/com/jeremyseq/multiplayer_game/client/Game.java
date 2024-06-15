@@ -6,7 +6,6 @@ import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -19,7 +18,7 @@ public class Game extends JPanel implements ActionListener {
     public final int DELAY = 20;
     private final Client client;
 
-    public Vec2 position = new Vec2(0, 0);
+    public ClientPlayer clientPlayer;
 
     public ArrayList<ClientPlayer> players = new ArrayList<>();
 
@@ -29,6 +28,10 @@ public class Game extends JPanel implements ActionListener {
 
     public Game(Client client) {
         this.client = client;
+
+        this.clientPlayer = new ClientPlayer(this, client.username, new Vec2(0, 0));
+        this.players.add(clientPlayer);
+
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
         Thread receiveServerResponses = new Thread(() -> {
@@ -41,7 +44,6 @@ public class Game extends JPanel implements ActionListener {
             }
         });
         receiveServerResponses.start();
-
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);
@@ -59,7 +61,6 @@ public class Game extends JPanel implements ActionListener {
     }
 
 
-
     @Override
     public void paintComponent(Graphics g) {
 
@@ -73,7 +74,7 @@ public class Game extends JPanel implements ActionListener {
         drawBackground(g);
 
         try {
-            client.out.writeUTF("$pos:" + position.toPacketString());
+            client.out.writeUTF("$pos:" + clientPlayer.position.toPacketString());
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
@@ -87,20 +88,8 @@ public class Game extends JPanel implements ActionListener {
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
         for (ClientPlayer player : this.players) {
-            g.setColor(Color.RED);
-            g.fillRect((int) player.position.x - 10, (int) player.position.y - 10, 20, 20);
-
-            g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
-            Rectangle2D bounds = g.getFont().getStringBounds(player.username, g.getFontMetrics().getFontRenderContext());
-            g.drawString(player.username, (int) ((int) player.position.x - bounds.getWidth()/2), (int) ((int) player.position.y + bounds.getHeight() + 4));
+            player.draw(g, this);
         }
-
-        g.setColor(Color.WHITE);
-        g.fillRect((int) position.x - 10, (int) position.y - 10, 20, 20);
-        g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
-        Rectangle2D bounds = g.getFont().getStringBounds(client.username, g.getFontMetrics().getFontRenderContext());
-        g.drawString(client.username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 4));
-
     }
 
     @Override
@@ -110,16 +99,16 @@ public class Game extends JPanel implements ActionListener {
         // before the graphics are redrawn.
 
         if (keyHandler.leftPressed) {
-            position.x -= SPEED;
+            clientPlayer.position.x -= SPEED;
         }
         if (keyHandler.rightPressed) {
-            position.x += SPEED;
+            clientPlayer.position.x += SPEED;
         }
         if (keyHandler.upPressed) {
-            position.y -= SPEED;
+            clientPlayer.position.y -= SPEED;
         }
         if (keyHandler.downPressed) {
-            position.y += SPEED;
+            clientPlayer.position.y += SPEED;
         }
 
         // calling repaint() will trigger paintComponent() to run again,
