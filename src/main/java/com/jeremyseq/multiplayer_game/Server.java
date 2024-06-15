@@ -96,6 +96,7 @@ public class Server
                         continue;
                     }
                     out.writeUTF("$pos:username=" + otherPlayer.username + "$" + "pos=" + otherPlayer.pos.toPacketString());
+                    out.writeUTF("$movement." + otherPlayer.username + ":" + otherPlayer.deltaMovement.toPacketString());
                 }
             }
         }

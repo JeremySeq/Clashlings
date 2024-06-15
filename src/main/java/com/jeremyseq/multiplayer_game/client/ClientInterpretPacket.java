@@ -19,20 +19,20 @@ public class ClientInterpretPacket {
 
             Vec2 pos = Vec2.fromString(posStr);
 
-            ClientPlayer respectivePlayer = null;
-            for (ClientPlayer player : game.players) {
-                if (player.username.equals(username)) {
-                    respectivePlayer = player;
-                }
-            }
+            ClientPlayer respectivePlayer = game.getClientPlayerByUsername(username);
             if (respectivePlayer == null) {
                 respectivePlayer = new ClientPlayer(game, username, pos);
                 game.players.add(respectivePlayer);
             } else {
                 respectivePlayer.position = pos;
             }
-
-
+        } else if (line.startsWith("$movement.")) {
+            String s = line.substring(10);
+            String username = s.split(":")[0];
+            String vec = s.split(":")[1];
+            Vec2 deltaMovement = Vec2.fromString(vec);
+            ClientPlayer player = game.getClientPlayerByUsername(username);
+            player.deltaMovement = deltaMovement;
         } else {
             System.out.println(line);
         }

@@ -15,6 +15,7 @@ public class ClientPlayer {
     public final Game game;
     public Vec2 position;
     private boolean flipped;
+    public Vec2 deltaMovement = new Vec2(0, 0);
 
     private int hitboxSize = 65;
 
@@ -45,6 +46,14 @@ public class ClientPlayer {
 
         } else {
             g.setColor(Color.RED);
+            if (deltaMovement.x != 0 || deltaMovement.y != 0) {
+                animation = 1;
+            }
+            if (deltaMovement.x < 0) {
+                flipped = true;
+            } else if (deltaMovement.x > 0) {
+                flipped = false;
+            }
         }
 
         // draw animation

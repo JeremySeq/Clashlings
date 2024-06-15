@@ -25,6 +25,11 @@ public class ServerInterpretPacket {
                 out.writeUTF("$init_connection:failed");
                 System.out.println("Player initialization failed: " + username);
             }
+        } else if (line.startsWith("$movement:")) {
+            String s = line.substring(10);
+            ServerPlayer player = serverGame.getPlayerBySocket(socket);
+            // set delta movement as given in the packet
+            player.deltaMovement = Vec2.fromString(s);
         } else {
             System.out.println(line);
         }

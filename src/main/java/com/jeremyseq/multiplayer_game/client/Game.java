@@ -115,10 +115,25 @@ public class Game extends JPanel implements ActionListener {
         if (dir.x != 0 || dir.y != 0) {
             this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
         }
+        try {
+            client.out.writeUTF("$movement:" + dir.normalize().multiply(SPEED).toPacketString());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
 
         // calling repaint() will trigger paintComponent() to run again,
         // which will refresh/redraw the graphics.
         repaint();
+    }
+
+    public ClientPlayer getClientPlayerByUsername(String username) {
+        ClientPlayer respectivePlayer = null;
+        for (ClientPlayer player : players) {
+            if (player.username.equals(username)) {
+                respectivePlayer = player;
+            }
+        }
+        return respectivePlayer;
     }
 
     public void keyPressed(KeyEvent e) {

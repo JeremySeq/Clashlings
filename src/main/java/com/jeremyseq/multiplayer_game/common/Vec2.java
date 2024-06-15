@@ -19,6 +19,9 @@ public class Vec2 {
 
     public Vec2 normalize() {
         double length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        if (length == 0) {
+            return this;
+        }
         float x = (float) (this.x / length);
         float y = (float) (this.y / length);
         return new Vec2(x, y);
