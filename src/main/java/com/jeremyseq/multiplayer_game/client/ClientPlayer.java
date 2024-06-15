@@ -99,7 +99,6 @@ public class ClientPlayer {
 
     public void attack(ATTACK attackSide) {
         if (attackSide != this.attacking) {
-            System.out.println(attackSide);
             attacking = attackSide;
         }
     }
