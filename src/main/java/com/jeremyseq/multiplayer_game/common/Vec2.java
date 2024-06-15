@@ -1,5 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.common;
 
+import java.util.Objects;
+
 public class Vec2 {
     public float x;
     public float y;
@@ -29,6 +31,16 @@ public class Vec2 {
 
     public Vec2 multiply(float scalar) {
         return new Vec2(this.x * scalar, this.y * scalar);
+    }
+
+
+    public boolean equals(Vec2 vec2) {
+        return this.x == vec2.x && this.y == vec2.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 
     @Override

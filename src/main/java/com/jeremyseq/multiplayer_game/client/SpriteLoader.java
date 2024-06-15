@@ -41,22 +41,14 @@ public class SpriteLoader {
         }
     }
 
-    public void drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped) {
+    public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped) {
+        boolean finished = false;
         loadImage();
 
         if (animation != playingAnimation) {
             playingAnimation = animation;
             animationFrame = 0;
             frameCounter = 0;
-        }
-
-        frameCounter++;
-        if (frameCounter >= 3) {
-            animationFrame++;
-            frameCounter = 0;
-            if (animationFrame >= framesPerAnimation) {
-                animationFrame = 0;
-            }
         }
 
         if (flipped) {
@@ -75,5 +67,16 @@ public class SpriteLoader {
             );
         }
 
+        frameCounter++;
+        if (frameCounter >= 3) {
+            animationFrame++;
+            frameCounter = 0;
+            if (animationFrame >= framesPerAnimation) {
+                finished = true;
+                animationFrame = 0;
+            }
+        }
+
+        return finished;
     }
 }

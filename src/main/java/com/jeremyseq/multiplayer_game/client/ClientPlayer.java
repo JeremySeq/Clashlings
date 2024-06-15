@@ -16,8 +16,17 @@ public class ClientPlayer {
     public Vec2 position;
     private boolean flipped;
     public Vec2 deltaMovement = new Vec2(0, 0);
+    public ATTACK attacking = ATTACK.FALSE;
 
     private int hitboxSize = 65;
+
+    public enum ATTACK {
+        FALSE,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    }
 
     public ClientPlayer(Game game, String username, Vec2 position) {
         this.game = game;
@@ -29,18 +38,35 @@ public class ClientPlayer {
 
         int animation = 0;
 
+        if (attacking != ATTACK.FALSE) {
+            animation = 2;
+            if (attacking == ATTACK.UP) {
+                animation = 6;
+            } else if (attacking == ATTACK.DOWN) {
+                animation = 4;
+            } else if (attacking == ATTACK.LEFT) {
+                flipped = true;
+            } else if (attacking == ATTACK.RIGHT) {
+                flipped = false;
+            }
+        }
+
         if (this == game.clientPlayer) {
             g.setColor(Color.WHITE);
 
             if (game.keyHandler.leftPressed) {
                 animation = 1;
+                attacking = ATTACK.FALSE;
                 flipped = true;
             } else if (game.keyHandler.rightPressed) {
                 animation = 1;
+                attacking = ATTACK.FALSE;
                 flipped = false;
             } else if (game.keyHandler.upPressed) {
+                attacking = ATTACK.FALSE;
                 animation = 1;
             } else if (game.keyHandler.downPressed) {
+                attacking = ATTACK.FALSE;
                 animation = 1;
             }
 
@@ -57,7 +83,11 @@ public class ClientPlayer {
         }
 
         // draw animation
-        this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
+        boolean finished = this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
+
+        if (finished && attacking != ATTACK.FALSE) {
+            attacking = ATTACK.FALSE;
+        }
 
 //        g.drawRect((int) (position.x-hitboxSize/2), (int) (position.y-hitboxSize/2), hitboxSize, hitboxSize);
 
@@ -65,5 +95,12 @@ public class ClientPlayer {
         g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
         Rectangle2D bounds = g.getFont().getStringBounds(username, g.getFontMetrics().getFontRenderContext());
         g.drawString(username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 25));
+    }
+
+    public void attack(ATTACK attackSide) {
+        if (attackSide != this.attacking) {
+            System.out.println(attackSide);
+            attacking = attackSide;
+        }
     }
 }

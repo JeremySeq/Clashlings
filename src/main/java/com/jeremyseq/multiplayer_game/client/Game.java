@@ -23,6 +23,7 @@ public class Game extends JPanel implements ActionListener {
     public ArrayList<ClientPlayer> players = new ArrayList<>();
 
     public KeyHandler keyHandler = new KeyHandler();
+    public MouseHandler mouseHandler = new MouseHandler(this);
 
     private Timer timer;
 
@@ -49,13 +50,7 @@ public class Game extends JPanel implements ActionListener {
         timer = new Timer(DELAY, this);
         timer.start();
 
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-        });
-
+        this.addMouseListener(mouseHandler);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
     }
@@ -134,9 +129,5 @@ public class Game extends JPanel implements ActionListener {
             }
         }
         return respectivePlayer;
-    }
-
-    public void keyPressed(KeyEvent e) {
-
     }
 }
