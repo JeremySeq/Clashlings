@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
+import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.io.DataOutputStream;
@@ -30,6 +31,19 @@ public class ServerInterpretPacket {
             ServerPlayer player = serverGame.getPlayerBySocket(socket);
             // set delta movement as given in the packet
             player.deltaMovement = Vec2.fromString(s);
+        } else if (line.startsWith("$attack:")) {
+            String s = line.substring(8);
+            ServerPlayer player = serverGame.getPlayerBySocket(socket);
+            AttackFacing attackFacing = AttackFacing.valueOf(s);
+            player.attack(attackFacing);
+
+            for (ServerPlayer otherPlayer : serverGame.players) {
+                if (player == otherPlayer) {
+                    continue;
+                }
+                DataOutputStream serverPlayerOut = new DataOutputStream(otherPlayer.socket.getOutputStream());
+                serverPlayerOut.writeUTF("$attack." + player.username + ":" + attackFacing.name());
+            }
         } else {
             System.out.println(line);
         }

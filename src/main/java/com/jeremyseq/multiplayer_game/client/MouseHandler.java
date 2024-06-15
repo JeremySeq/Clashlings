@@ -1,10 +1,12 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
+import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 
 public class MouseHandler implements MouseListener {
 
@@ -33,19 +35,31 @@ public class MouseHandler implements MouseListener {
                 up = false;
             }
 
+
+            AttackFacing attackSide;
             if (Math.abs(playerToMouseVec.x) > Math.abs(playerToMouseVec.y)) {
                 if (right) {
-                    game.clientPlayer.attack(ClientPlayer.ATTACK.RIGHT);
+                    attackSide = AttackFacing.RIGHT;
                 } else {
-                    game.clientPlayer.attack(ClientPlayer.ATTACK.LEFT);
+                    attackSide = AttackFacing.LEFT;
                 }
             } else {
                 if (up) {
-                    game.clientPlayer.attack(ClientPlayer.ATTACK.UP);
+                    attackSide = AttackFacing.UP;
                 } else {
-                    game.clientPlayer.attack(ClientPlayer.ATTACK.DOWN);
+                    attackSide = AttackFacing.DOWN;
                 }
             }
+
+            if (attackSide != this.game.clientPlayer.attacking) {
+                try {
+                    game.client.out.writeUTF("$attack:" + attackSide.name());
+                } catch (IOException exception) {
+                    throw new RuntimeException(exception);
+                }
+                game.clientPlayer.attack(attackSide);
+            }
+
         }
     }
 

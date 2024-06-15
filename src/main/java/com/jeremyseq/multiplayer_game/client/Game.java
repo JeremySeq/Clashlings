@@ -16,7 +16,7 @@ public class Game extends JPanel implements ActionListener {
     private static final float SPEED = 5;
 
     public final int DELAY = 20;
-    private final Client client;
+    public final Client client;
 
     public ClientPlayer clientPlayer;
 

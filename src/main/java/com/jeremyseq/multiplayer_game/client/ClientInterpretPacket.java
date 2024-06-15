@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
+import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 public class ClientInterpretPacket {
@@ -33,6 +34,12 @@ public class ClientInterpretPacket {
             Vec2 deltaMovement = Vec2.fromString(vec);
             ClientPlayer player = game.getClientPlayerByUsername(username);
             player.deltaMovement = deltaMovement;
+        } else if (line.startsWith("$attack.")) {
+            String s = line.substring(8);
+            String username = s.split(":")[0];
+            ClientPlayer player = game.getClientPlayerByUsername(username);
+            AttackFacing facing = AttackFacing.valueOf(s.split(":")[1]);
+            player.attack(facing);
         } else {
             System.out.println(line);
         }

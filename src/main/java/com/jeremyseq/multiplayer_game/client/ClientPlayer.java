@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
+import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
@@ -15,17 +16,9 @@ public class ClientPlayer {
     public Vec2 position;
     private boolean flipped;
     public Vec2 deltaMovement = new Vec2(0, 0);
-    public ATTACK attacking = ATTACK.FALSE;
+    public AttackFacing attacking = AttackFacing.FALSE;
 
     private int hitboxSize = 65;
-
-    public enum ATTACK {
-        FALSE,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
 
     public ClientPlayer(Game game, String username, Vec2 position) {
         this.game = game;
@@ -37,41 +30,41 @@ public class ClientPlayer {
 
         int animation = 0;
 
-        if (attacking != ATTACK.FALSE) {
+        if (attacking != AttackFacing.FALSE) {
             animation = 2;
-            if (attacking == ATTACK.UP) {
+            if (attacking == AttackFacing.UP) {
                 animation = 6;
-            } else if (attacking == ATTACK.DOWN) {
+            } else if (attacking == AttackFacing.DOWN) {
                 animation = 4;
-            } else if (attacking == ATTACK.LEFT) {
+            } else if (attacking == AttackFacing.LEFT) {
                 flipped = true;
-            } else if (attacking == ATTACK.RIGHT) {
+            } else if (attacking == AttackFacing.RIGHT) {
                 flipped = false;
             }
         }
 
         if (this == game.clientPlayer) {
             g.setColor(Color.WHITE);
-
             if (game.keyHandler.leftPressed) {
                 animation = 1;
-                attacking = ATTACK.FALSE;
+                attacking = AttackFacing.FALSE;
                 flipped = true;
             } else if (game.keyHandler.rightPressed) {
                 animation = 1;
-                attacking = ATTACK.FALSE;
+                attacking = AttackFacing.FALSE;
                 flipped = false;
             } else if (game.keyHandler.upPressed) {
-                attacking = ATTACK.FALSE;
+                attacking = AttackFacing.FALSE;
                 animation = 1;
             } else if (game.keyHandler.downPressed) {
-                attacking = ATTACK.FALSE;
+                attacking = AttackFacing.FALSE;
                 animation = 1;
             }
 
         } else {
             g.setColor(Color.RED);
             if (deltaMovement.x != 0 || deltaMovement.y != 0) {
+                attacking = AttackFacing.FALSE;
                 animation = 1;
             }
             if (deltaMovement.x < 0) {
@@ -84,8 +77,8 @@ public class ClientPlayer {
         // draw animation
         boolean finished = this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
 
-        if (finished && attacking != ATTACK.FALSE) {
-            attacking = ATTACK.FALSE;
+        if (finished && attacking != AttackFacing.FALSE) {
+            attacking = AttackFacing.FALSE;
         }
 
 //        g.drawRect((int) (position.x-hitboxSize/2), (int) (position.y-hitboxSize/2), hitboxSize, hitboxSize);
@@ -96,9 +89,7 @@ public class ClientPlayer {
         g.drawString(username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 25));
     }
 
-    public void attack(ATTACK attackSide) {
-        if (attackSide != this.attacking) {
-            attacking = attackSide;
-        }
+    public void attack(AttackFacing attackSide) {
+        attacking = attackSide;
     }
 }
