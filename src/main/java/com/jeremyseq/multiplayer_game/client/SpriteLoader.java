@@ -4,11 +4,11 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class SpriteLoader {
-    private final File imageFile;
+    private final String imageFile;
     private BufferedImage image;
     private int frameCounter = 0;
     private int animationFrame = 0;
@@ -22,7 +22,7 @@ public class SpriteLoader {
 
     private int playingAnimation;
 
-    public SpriteLoader(File imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
+    public SpriteLoader(String imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
         this.imageFile = imageFile;
         this.framesPerAnimation = framesPerAnimation;
         this.animationCount = animationCount;
@@ -34,7 +34,7 @@ public class SpriteLoader {
     public void loadImage() {
         if (image == null) {
             try {
-                image = ImageIO.read(this.imageFile);
+                image = ImageIO.read(Objects.requireNonNull(getClass().getResource(this.imageFile)));
             } catch (IOException exc) {
                 System.out.println("Error opening image file: " + exc.getMessage());
             }

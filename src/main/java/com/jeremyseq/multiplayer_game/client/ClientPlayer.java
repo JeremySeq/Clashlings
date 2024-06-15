@@ -5,11 +5,10 @@ import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
-import java.io.File;
 
 public class ClientPlayer {
     public final SpriteLoader spriteLoader = new SpriteLoader(
-            new File("src/main/resources/TinySwordsPack/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png"),
+            "/TinySwordsPack/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png",
             8, 6, 192, 120);
     public final String username;
     public final Game game;
