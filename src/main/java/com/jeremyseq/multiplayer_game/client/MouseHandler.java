@@ -1,6 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
+import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
@@ -36,18 +36,18 @@ public class MouseHandler implements MouseListener {
             }
 
 
-            AttackFacing attackSide;
+            AttackState attackSide;
             if (Math.abs(playerToMouseVec.x) > Math.abs(playerToMouseVec.y)) {
                 if (right) {
-                    attackSide = AttackFacing.RIGHT;
+                    attackSide = AttackState.RIGHT;
                 } else {
-                    attackSide = AttackFacing.LEFT;
+                    attackSide = AttackState.LEFT;
                 }
             } else {
                 if (up) {
-                    attackSide = AttackFacing.UP;
+                    attackSide = AttackState.UP;
                 } else {
-                    attackSide = AttackFacing.DOWN;
+                    attackSide = AttackState.DOWN;
                 }
             }
 

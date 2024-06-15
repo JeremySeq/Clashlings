@@ -1,7 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.Client;
-import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
+import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.swing.*;
@@ -94,7 +94,7 @@ public class Game extends JPanel implements ActionListener {
         // use this space to update the state of your game or animation
         // before the graphics are redrawn.
 
-        if (this.clientPlayer.attacking == AttackFacing.FALSE) {
+        if (this.clientPlayer.attacking == AttackState.FALSE) {
             Vec2 dir = new Vec2(0, 0);
             if (keyHandler.leftPressed) {
                 dir = dir.add(new Vec2(-1, 0));

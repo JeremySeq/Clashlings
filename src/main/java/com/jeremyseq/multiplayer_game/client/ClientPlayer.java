@@ -1,6 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
+import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
@@ -16,7 +16,7 @@ public class ClientPlayer {
     public Vec2 position;
     private boolean flipped;
     public Vec2 deltaMovement = new Vec2(0, 0);
-    public AttackFacing attacking = AttackFacing.FALSE;
+    public AttackState attacking = AttackState.FALSE;
 
     private int hitboxSize = 65;
 
@@ -56,15 +56,15 @@ public class ClientPlayer {
             }
         }
 
-        if (attacking != AttackFacing.FALSE) {
+        if (attacking != AttackState.FALSE) {
             animation = 2;
-            if (attacking == AttackFacing.UP) {
+            if (attacking == AttackState.UP) {
                 animation = 6;
-            } else if (attacking == AttackFacing.DOWN) {
+            } else if (attacking == AttackState.DOWN) {
                 animation = 4;
-            } else if (attacking == AttackFacing.LEFT) {
+            } else if (attacking == AttackState.LEFT) {
                 flipped = true;
-            } else if (attacking == AttackFacing.RIGHT) {
+            } else if (attacking == AttackState.RIGHT) {
                 flipped = false;
             }
         }
@@ -72,8 +72,8 @@ public class ClientPlayer {
         // draw animation
         boolean finished = this.spriteLoader.drawAnimation(g, imageObserver, animation, (int) position.x, (int) position.y, flipped);
 
-        if (finished && attacking != AttackFacing.FALSE) {
-            attacking = AttackFacing.FALSE;
+        if (finished && attacking != AttackState.FALSE) {
+            attacking = AttackState.FALSE;
         }
 
 //        g.drawRect((int) (position.x-hitboxSize/2), (int) (position.y-hitboxSize/2), hitboxSize, hitboxSize);
@@ -84,7 +84,7 @@ public class ClientPlayer {
         g.drawString(username, (int) ((int) position.x - bounds.getWidth()/2), (int) ((int) position.y + bounds.getHeight() + 25));
     }
 
-    public void attack(AttackFacing attackSide) {
+    public void attack(AttackState attackSide) {
         this.deltaMovement = new Vec2(0, 0);
         attacking = attackSide;
     }

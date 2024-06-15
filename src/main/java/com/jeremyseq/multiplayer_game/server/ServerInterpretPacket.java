@@ -1,6 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackFacing;
+import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.io.DataOutputStream;
@@ -34,15 +34,15 @@ public class ServerInterpretPacket {
         } else if (line.startsWith("$attack:")) {
             String s = line.substring(8);
             ServerPlayer player = serverGame.getPlayerBySocket(socket);
-            AttackFacing attackFacing = AttackFacing.valueOf(s);
-            player.attack(attackFacing);
+            AttackState attackState = AttackState.valueOf(s);
+            player.attack(attackState);
 
             for (ServerPlayer otherPlayer : serverGame.players) {
                 if (player == otherPlayer) {
                     continue;
                 }
                 DataOutputStream serverPlayerOut = new DataOutputStream(otherPlayer.socket.getOutputStream());
-                serverPlayerOut.writeUTF("$attack." + player.username + ":" + attackFacing.name());
+                serverPlayerOut.writeUTF("$attack." + player.username + ":" + attackState.name());
             }
         } else {
             System.out.println(line);
