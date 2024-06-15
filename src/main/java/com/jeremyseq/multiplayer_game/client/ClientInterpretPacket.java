@@ -1,0 +1,40 @@
+package main.java.com.jeremyseq.multiplayer_game.client;
+
+import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+
+public class ClientInterpretPacket {
+    public static void interpretPacket(Game game, String line) {
+        if (line.startsWith("$init_connection:")) {
+            String s = line.substring(17);
+            if (s.equals("failed")) {
+                System.out.println("Player initialization failed. Exiting...");
+                System.exit(0);
+            }
+        } else if (line.startsWith("$pos:")) {
+            String s = line.substring(5);
+            String username = s.split("\\$")[0];
+            String posStr = s.split("\\$")[1];
+            username = username.substring(9);
+            posStr = posStr.substring(4);
+
+            Vec2 pos = Vec2.fromString(posStr);
+
+            ClientPlayer respectivePlayer = null;
+            for (ClientPlayer player : game.players) {
+                if (player.username.equals(username)) {
+                    respectivePlayer = player;
+                }
+            }
+            if (respectivePlayer == null) {
+                respectivePlayer = new ClientPlayer(username, pos);
+                game.players.add(respectivePlayer);
+            } else {
+                respectivePlayer.position = pos;
+            }
+
+
+        } else {
+            System.out.println(line);
+        }
+    }
+}
