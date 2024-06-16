@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game;
 
+import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerInterpretPacket;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
@@ -60,8 +61,9 @@ public class Server
         DataOutputStream out = new DataOutputStream(
                 socket.getOutputStream());
 
-        String line = "";
+        out.writeUTF("$level:" + this.serverGame.level.toJson());
 
+        String line = "";
         // reads message from client until "Over" is sent
         while (!line.equals("Over"))
         {

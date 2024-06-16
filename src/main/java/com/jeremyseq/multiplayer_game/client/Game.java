@@ -2,6 +2,8 @@ package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.Client;
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
+import main.java.com.jeremyseq.multiplayer_game.common.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.swing.*;
@@ -20,6 +22,7 @@ public class Game extends JPanel implements ActionListener {
     public final Client client;
 
     public ClientPlayer clientPlayer;
+    public Level level;
 
     public ArrayList<ClientPlayer> players = new ArrayList<>();
 

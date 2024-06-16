@@ -1,6 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
+import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 public class ClientInterpretPacket {
@@ -40,6 +41,9 @@ public class ClientInterpretPacket {
             ClientPlayer player = game.getClientPlayerByUsername(username);
             AttackState facing = AttackState.valueOf(s.split(":")[1]);
             player.attack(facing);
+        } else if (line.startsWith("$level:")) {
+            String s = line.substring(7);
+            game.level = new LevelReader().readLevelString(s);
         } else {
             System.out.println(line);
         }

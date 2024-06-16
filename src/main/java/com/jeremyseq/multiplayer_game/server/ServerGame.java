@@ -1,5 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
+import main.java.com.jeremyseq.multiplayer_game.common.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.net.Socket;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ServerGame {
+    public Level level = new LevelReader().readLevel("level1");
     public ArrayList<ServerPlayer> players = new ArrayList<>();
 
     public ServerGame() {

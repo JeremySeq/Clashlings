@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
+import main.java.com.jeremyseq.multiplayer_game.common.Level;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.imageio.ImageIO;
@@ -7,14 +8,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class LevelRenderer {
 
     private final Game game;
-    public BufferedImage flat_tilemap;
-    public BufferedImage elevation_tilemap;
-    public BufferedImage water;
+    public HashMap<String, BufferedImage> tilemaps = new HashMap<>();
 
     int drawSize = 64;
     int tileSize = 64;
@@ -27,9 +27,9 @@ public class LevelRenderer {
 
     public void loadImages() {
         try {
-            flat_tilemap = ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Flat.png")));
-            elevation_tilemap = ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Elevation.png")));
-            water = ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png")));
+            tilemaps.put("flat", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Flat.png"))));
+            tilemaps.put("elevation", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Elevation.png"))));
+            tilemaps.put("water", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png"))));
         } catch (IOException exc) {
             System.out.println("Error opening image file: " + exc.getMessage());
         }
@@ -39,8 +39,12 @@ public class LevelRenderer {
 
         for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
             for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
-                drawTile(g, imageObserver, i*drawSize, j*drawSize, water, 0, 0, true);
+                drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
             }
+        }
+
+        for (Level.Tile tile : game.level.tiles) {
+            drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
         }
     }
 
