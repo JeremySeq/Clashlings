@@ -91,18 +91,6 @@ public class LevelRenderer {
         }
     }
 
-//    public void drawFoam(Graphics g, ImageObserver imageObserver, int x, int y, int i, int j) {
-//        Vec2 renderPos = new Vec2(x, y);
-//        renderPos = game.getRenderPositionFromWorldPosition(renderPos);
-//        int x2 = (int) renderPos.x;
-//        int y2 = (int) renderPos.y;
-//        g.drawImage(
-//                tilemap,
-//                x2, y2, x2 + drawSize, y2 + drawSize,
-//                tileSize*i, tileSize*j, tileSize*i + tileSize, tileSize*j + tileSize,
-//                imageObserver
-//        );
-//    }
 
     /**
      * @param x x-coordinate to draw on screen
