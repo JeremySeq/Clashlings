@@ -25,7 +25,7 @@ public class Level {
     }
 
     public ArrayList<Tile> outlineLayer(String layer) {
-        return outlineLayer(layer, false);
+        return outlineLayer(layer, true);
     }
 
     /**
@@ -54,6 +54,29 @@ public class Level {
             }
         }
         return outlinedTiles;
+    }
+
+    /**
+     * @return returns tiles in the given layer that are an edge tile
+     */
+    public ArrayList<Tile> getOuterTilesInLayer(String layer) {
+        ArrayList<Tile> outerTiles = new ArrayList<>();
+        ArrayList<Vec2> directions = new ArrayList<>();
+        directions.add(new Vec2(0, 1));
+        directions.add(new Vec2(1, 0));
+        directions.add(new Vec2(0, -1));
+        directions.add(new Vec2(-1, 0));
+
+        for (Tile tile : tiles.get(String.valueOf(layer))) {
+            for (Vec2 direction : directions) {
+                Vec2 neighbor = new Vec2(tile.x, tile.y).add(direction);
+                if (tiles.get(String.valueOf(layer)).stream().anyMatch((streamTile) -> streamTile.x == neighbor.x && streamTile.y == neighbor.y)) {
+                    continue;
+                }
+                outerTiles.add(tile);
+            }
+        }
+        return outerTiles;
     }
 
     public static ArrayList<Tile> combineTileLists(HashMap<String, ArrayList<Tile>> tileMap) {
