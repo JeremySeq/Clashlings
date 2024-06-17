@@ -32,6 +32,9 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public int tilemapI = 0;
     public int tilemapJ = 0;
 
+    private int frameCounter = 0; // counts frames
+    private int animationFrame = 0; // frame that the animations are on
+
     public LevelEditorMouseHandler mouseHandler = new LevelEditorMouseHandler(this);
 
     public Vec2 camPos = new Vec2(0, 0);
@@ -126,6 +129,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
             tilemaps.put("flat", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Flat.png"))));
             tilemaps.put("elevation", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Elevation.png"))));
             tilemaps.put("water", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png"))));
+            tilemaps.put("foam", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Foam/Foam.png"))));
         } catch (IOException exc) {
             System.out.println("Error opening image file: " + exc.getMessage());
         }
@@ -153,11 +157,22 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     }
 
     public void draw(Graphics g, ImageObserver imageObserver) {
+        frameCounter++;
+        if (frameCounter >= 3) {
+            animationFrame++;
+            frameCounter = 0;
+            if (animationFrame >= 8) {
+                animationFrame = 0;
+            }
+        }
+
+
         Vec2 mousePos = null;
         if (this.getMousePosition() != null) {
             mousePos = new Vec2(this.getMousePosition().x, this.getMousePosition().y);
         }
 
+        // draw water background
         for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
             for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
                 drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
@@ -177,6 +192,19 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
             if (level.tiles.get(l) == null) {
                 continue;
             }
+            // draw foam around outline of layer 1
+            if (i == 1) {
+                ArrayList<Tile> outlineLayerTiles = level.getOuterTilesInLayer(l);
+                for (Tile tile : outlineLayerTiles) {
+                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 1);
+
+                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 0);
+                    drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 2+3*animationFrame, 1);
+                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
+                    drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
+                }
+            }
+
             for (Tile tile : level.tiles.get(l)) {
                 drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
             }
