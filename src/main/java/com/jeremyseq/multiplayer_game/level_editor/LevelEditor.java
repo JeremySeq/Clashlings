@@ -1,8 +1,9 @@
 package main.java.com.jeremyseq.multiplayer_game.level_editor;
 
 import main.java.com.jeremyseq.multiplayer_game.client.Game;
-import main.java.com.jeremyseq.multiplayer_game.common.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.level.LevelReader;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.imageio.ImageIO;
@@ -32,7 +33,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public Vec2 camPos = new Vec2(0, 0);
 
     public Level level = new LevelReader().readLevel("level1");
-    public String layer = "1-2";
+    public String layer = "2-3";
 
     private Timer timer;
     private boolean dPressed = false;
@@ -79,7 +80,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
                                 System.out.println("Deleting");
                                 level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
                             } else {
-                                level.tiles.get(layer).add(new Level.Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
+                                level.tiles.get(layer).add(new Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
                             }
                         }
                     }
@@ -134,8 +135,17 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
             }
         }
 
-        for (String l : level.tiles.keySet()) {
-            for (Level.Tile tile : level.tiles.get(l)) {
+        int numberOfLayers = level.metadata.layers;
+        for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
+            String l;
+            if (i % 2 == 1) {
+                l = String.valueOf(i - (i - 1) / 2);
+            } else {
+                String prev = String.valueOf((i - 1) - (i - 2) / 2);
+                String next = String.valueOf((i + 1) - (i) / 2);
+                l = prev + "-" + next;
+            }
+            for (Tile tile : level.tiles.get(l)) {
                 drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
             }
         }

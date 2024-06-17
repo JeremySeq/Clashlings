@@ -1,7 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game.common;
+package main.java.com.jeremyseq.multiplayer_game.common.level;
 
 
 import com.google.gson.Gson;
+import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class LevelReader {
     public Level readLevelString(String data) {
         Gson gson = new Gson();
         if (gson.fromJson(data, Level.class) == null) {
-            return new Level(new HashMap<>(), new HashMap<>());
+            return new Level(new LevelMetadata(1, new Vec2(0, 0)), new HashMap<>());
         }
         return gson.fromJson(data, Level.class);
     }

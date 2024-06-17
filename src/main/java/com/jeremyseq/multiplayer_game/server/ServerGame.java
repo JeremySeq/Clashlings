@@ -1,7 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
-import main.java.com.jeremyseq.multiplayer_game.common.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.level.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.net.Socket;

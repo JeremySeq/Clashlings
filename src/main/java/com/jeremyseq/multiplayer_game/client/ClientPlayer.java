@@ -1,7 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
@@ -101,7 +101,7 @@ public class ClientPlayer {
 
     public void tick() {
         if (this.game.level != null) {
-            int numberOfLayers = 2; // TODO: this should come from metadata of level.json
+            int numberOfLayers = this.game.level.metadata.layers;
             for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
                 String layer;
                 if (i % 2 == 1) {
@@ -153,7 +153,7 @@ public class ClientPlayer {
                     continue;
                 }
 
-                for (Level.Tile tile : this.game.level.tiles.get(layer)) {
+                for (Tile tile : this.game.level.tiles.get(layer)) {
                     if (tile.tilemap.equals("elevation") && !(tile.j == 3 || tile.j == 5)) {
                         continue;
                     }
@@ -161,7 +161,7 @@ public class ClientPlayer {
                 }
 
                 // outlines the current layer with tiles which will act as barriers so the player doesn't walk off the layer
-                for (Level.Tile tile : outlineCurrentLayer()) {
+                for (Tile tile : outlineCurrentLayer()) {
                     handleCollision(tile);
                 }
             }
@@ -172,15 +172,15 @@ public class ClientPlayer {
     /**
      * @return returns a list of tiles that outline the current layer
      */
-    public ArrayList<Level.Tile> outlineCurrentLayer() {
-        ArrayList<Level.Tile> outlinedTiles = new ArrayList<>();
+    public ArrayList<Tile> outlineCurrentLayer() {
+        ArrayList<Tile> outlinedTiles = new ArrayList<>();
         ArrayList<Vec2> directions = new ArrayList<>();
         directions.add(new Vec2(0, 1));
         directions.add(new Vec2(1, 0));
         directions.add(new Vec2(0, -1));
         directions.add(new Vec2(-1, 0));
 
-        for (Level.Tile tile : this.game.level.tiles.get(String.valueOf(this.currentLayer))) {
+        for (Tile tile : this.game.level.tiles.get(String.valueOf(this.currentLayer))) {
             for (Vec2 direction : directions) {
                 Vec2 neighbor = new Vec2(tile.x, tile.y).add(direction);
                 if (this.game.level.tiles.get(String.valueOf(this.currentLayer)).stream().anyMatch((streamTile) -> streamTile.x == neighbor.x && streamTile.y == neighbor.y)) {
@@ -189,13 +189,13 @@ public class ClientPlayer {
                 if (combineTileLists(this.game.level.tiles).stream().anyMatch((streamTile) -> streamTile.x == neighbor.x && streamTile.y == neighbor.y && streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
                     continue;
                 }
-                outlinedTiles.add(new Level.Tile((int) neighbor.x, (int) neighbor.y, "elevation", 2, 3));
+                outlinedTiles.add(new Tile((int) neighbor.x, (int) neighbor.y, "elevation", 2, 3));
             }
         }
         return outlinedTiles;
     }
 
-    public void handleCollision(Level.Tile tile) {
+    public void handleCollision(Tile tile) {
         int tileSize = this.game.levelRenderer.drawSize;
         if (isColliding(tile, this.position)) {
             if (position.y - walkHitboxHeight/2f + walkHitboxHeightOffset < tile.y*tileSize) { // if top of the hitbox is above the top of the tile
@@ -213,24 +213,24 @@ public class ClientPlayer {
         }
     }
 
-    public ArrayList<Level.Tile> findTilesAtPosition(Vec2 pos) {
-        ArrayList<Level.Tile> tiles = combineTileLists(this.game.level.tiles);
-        ArrayList<Level.Tile> tilesWithPlayer = new ArrayList<>();
+    public ArrayList<Tile> findTilesAtPosition(Vec2 pos) {
+        ArrayList<Tile> tiles = combineTileLists(this.game.level.tiles);
+        ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
 
-        for (Level.Tile tile : tiles) {
+        for (Tile tile : tiles) {
             if (isPosInTile(tile, (int) pos.x, (int) pos.y)) {
                 tilesWithPlayer.add(tile);
             }
         }
         return tilesWithPlayer;
     }
-    public ArrayList<Level.Tile> findTilesAtPositionInLayer(Vec2 pos, String layer) {
-        ArrayList<Level.Tile> tiles = this.game.level.tiles.get(layer);
-        ArrayList<Level.Tile> tilesWithPlayer = new ArrayList<>();
+    public ArrayList<Tile> findTilesAtPositionInLayer(Vec2 pos, String layer) {
+        ArrayList<Tile> tiles = this.game.level.tiles.get(layer);
+        ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
         if (tiles == null) {
             return null;
         }
-        for (Level.Tile tile : tiles) {
+        for (Tile tile : tiles) {
             if (isPosInTile(tile, (int) pos.x, (int) pos.y)) {
                 tilesWithPlayer.add(tile);
             }
@@ -238,7 +238,7 @@ public class ClientPlayer {
         return tilesWithPlayer;
     }
 
-    public boolean isColliding(Level.Tile tile, Vec2 playerPos) {
+    public boolean isColliding(Tile tile, Vec2 playerPos) {
         if (tile.tilemap.equals("elevation") && tile.j == 7) {
             return false;
         }
@@ -251,15 +251,15 @@ public class ClientPlayer {
                 tile.y*tileDrawSize + tileDrawSize > playerPos.y-height/2f+walkHitboxHeightOffset;
     }
 
-    public boolean isPosInTile(Level.Tile tile, int posX, int posY) {
+    public boolean isPosInTile(Tile tile, int posX, int posY) {
 
         return tile.x*this.game.levelRenderer.drawSize <= posX && posX < tile.x*this.game.levelRenderer.drawSize + this.game.levelRenderer.drawSize &&
                 tile.y*this.game.levelRenderer.drawSize <= posY && posY < tile.y*this.game.levelRenderer.drawSize + this.game.levelRenderer.drawSize;
     }
 
-    public static ArrayList<Level.Tile> combineTileLists(HashMap<String, ArrayList<Level.Tile>> tileMap) {
-        ArrayList<Level.Tile> combinedList = new ArrayList<>();
-        for (Map.Entry<String, ArrayList<Level.Tile>> entry : tileMap.entrySet()) {
+    public static ArrayList<Tile> combineTileLists(HashMap<String, ArrayList<Tile>> tileMap) {
+        ArrayList<Tile> combinedList = new ArrayList<>();
+        for (Map.Entry<String, ArrayList<Tile>> entry : tileMap.entrySet()) {
             combinedList.addAll(entry.getValue());
         }
         return combinedList;

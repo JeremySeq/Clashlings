@@ -1,6 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.imageio.ImageIO;
@@ -45,7 +45,7 @@ public class LevelRenderer {
         }
 
         if (game.level != null) {
-            int numberOfLayers = 2;
+            int numberOfLayers = this.game.level.metadata.layers;
             for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
                 String layer;
                 if (i % 2 == 1) {
@@ -55,11 +55,11 @@ public class LevelRenderer {
                     String next = String.valueOf((i+1) - (i)/2);
                     layer = prev + "-" + next;
                 }
-                ArrayList<Level.Tile> tileList = game.level.tiles.get(layer);
+                ArrayList<Tile> tileList = game.level.tiles.get(layer);
                 if (tileList == null || tileList.isEmpty()) {
                     continue;
                 }
-                for (Level.Tile tile : tileList) {
+                for (Tile tile : tileList) {
                     drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
                 }
             }
