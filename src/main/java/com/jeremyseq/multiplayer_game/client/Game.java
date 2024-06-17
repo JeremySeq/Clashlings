@@ -132,7 +132,7 @@ public class Game extends JPanel implements ActionListener {
                 // if moving diagonal
                 if (dir.x != 0 && dir.y != 0) {
                     this.clientPlayer.position.x = this.clientPlayer.position.add(dir.normalize().multiply(SPEED)).x;
-                    this.clientPlayer.tick();
+                    this.clientPlayer.handleCollisions();
                     this.clientPlayer.position.y = this.clientPlayer.position.add(dir.normalize().multiply(SPEED)).y;
                 } else {
                     this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
@@ -146,7 +146,7 @@ public class Game extends JPanel implements ActionListener {
             }
         }
 
-        this.clientPlayer.tick();
+        this.clientPlayer.handleCollisions();
 
 
         // calling repaint() will trigger paintComponent() to run again,

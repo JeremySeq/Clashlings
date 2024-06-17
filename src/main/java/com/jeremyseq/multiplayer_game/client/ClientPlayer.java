@@ -7,9 +7,6 @@ import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ClientPlayer {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -99,7 +96,7 @@ public class ClientPlayer {
         attacking = attackSide;
     }
 
-    public void tick() {
+    public void handleCollisions() {
         if (this.game.level != null) {
             int numberOfLayers = this.game.level.metadata.layers;
             for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
@@ -113,29 +110,38 @@ public class ClientPlayer {
                 }
 
                 // check if player is on stairs, if they are, set onStairs to true
-                if (findTilesAtPosition(this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
+                if (this.game.level.findTilesAtPosition(this.game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
                     this.onStairs = true;
                 } else if (onStairs) {
                     // if we move to a position that has a tile from the layer above, we set onStairs to false and we increase currentLayer
-                    if (this.currentLayer + 1 <= numberOfLayers && !findTilesAtPositionInLayer(this.position.add(new Vec2(0, walkHitboxHeightOffset)), String.valueOf(this.currentLayer + 1)).isEmpty()) {
+                    if (this.currentLayer + 1 <= numberOfLayers && !this.game.level.findTilesAtPositionInLayer(
+                            game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                            String.valueOf(this.currentLayer + 1)).isEmpty()) {
                         // we are on the layer above
                         System.out.println("we went up to layer " + (this.currentLayer + 1));
                         this.onStairs = false;
                         this.currentLayer = currentLayer + 1;
                     }
                     // this would happen if we moved from the current layer to the stairs and then back to the current layer
-                    else if (!findTilesAtPositionInLayer(this.position.add(new Vec2(0, walkHitboxHeightOffset)), String.valueOf(this.currentLayer)).isEmpty()) {
+                    else if (!this.game.level.findTilesAtPositionInLayer(
+                            game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                            String.valueOf(this.currentLayer)).isEmpty()) {
                         this.onStairs = false;
                         System.out.println("You had a moment of indecision");
                     }
                     // if we move to a position that has a tile from the layer below, we set onStairs to false and we decrease currentLayer
-                    else if (this.currentLayer - 1 > 0 && !findTilesAtPositionInLayer(this.position.add(new Vec2(0, walkHitboxHeightOffset)), String.valueOf(this.currentLayer - 1)).isEmpty()) {
+                    else if (this.currentLayer - 1 > 0 && !this.game.level.findTilesAtPositionInLayer(
+                            game.levelRenderer,
+                            this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                            String.valueOf(this.currentLayer - 1)).isEmpty()) {
                         // we are on the layer below
                         System.out.println("we went down to layer " + (this.currentLayer - 1));
                         this.onStairs = false;
                         this.currentLayer = currentLayer - 1;
                     }
-                    else if (findTilesAtPosition(this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().noneMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
+                    else if (this.game.level.findTilesAtPosition(this.game.levelRenderer,
+                            this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().noneMatch((streamTile) ->
+                            streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
                         onStairs = false;
                     }
                 }
@@ -160,45 +166,19 @@ public class ClientPlayer {
                     if (tile.tilemap.equals("elevation") && !(tile.j == 3 || tile.j == 5)) {
                         continue;
                     }
-                    handleCollision(tile);
+                    handleTileCollision(tile);
                 }
 
                 // outlines the current layer with tiles which will act as barriers so the player doesn't walk off the layer
-                for (Tile tile : outlineCurrentLayer()) {
-                    handleCollision(tile);
+                for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
+                    handleTileCollision(tile);
                 }
             }
         }
     }
 
 
-    /**
-     * @return returns a list of tiles that outline the current layer
-     */
-    public ArrayList<Tile> outlineCurrentLayer() {
-        ArrayList<Tile> outlinedTiles = new ArrayList<>();
-        ArrayList<Vec2> directions = new ArrayList<>();
-        directions.add(new Vec2(0, 1));
-        directions.add(new Vec2(1, 0));
-        directions.add(new Vec2(0, -1));
-        directions.add(new Vec2(-1, 0));
-
-        for (Tile tile : this.game.level.tiles.get(String.valueOf(this.currentLayer))) {
-            for (Vec2 direction : directions) {
-                Vec2 neighbor = new Vec2(tile.x, tile.y).add(direction);
-                if (this.game.level.tiles.get(String.valueOf(this.currentLayer)).stream().anyMatch((streamTile) -> streamTile.x == neighbor.x && streamTile.y == neighbor.y)) {
-                    continue;
-                }
-                if (combineTileLists(this.game.level.tiles).stream().anyMatch((streamTile) -> streamTile.x == neighbor.x && streamTile.y == neighbor.y && streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
-                    continue;
-                }
-                outlinedTiles.add(new Tile((int) neighbor.x, (int) neighbor.y, "elevation", 2, 3));
-            }
-        }
-        return outlinedTiles;
-    }
-
-    public void handleCollision(Tile tile) {
+    public void handleTileCollision(Tile tile) {
         int tileSize = this.game.levelRenderer.drawSize;
         if (isColliding(tile, this.position)) {
             if (position.y - walkHitboxHeight/2f + walkHitboxHeightOffset < tile.y*tileSize) { // if top of the hitbox is above the top of the tile
@@ -216,31 +196,6 @@ public class ClientPlayer {
         }
     }
 
-    public ArrayList<Tile> findTilesAtPosition(Vec2 pos) {
-        ArrayList<Tile> tiles = combineTileLists(this.game.level.tiles);
-        ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
-
-        for (Tile tile : tiles) {
-            if (isPosInTile(tile, (int) pos.x, (int) pos.y)) {
-                tilesWithPlayer.add(tile);
-            }
-        }
-        return tilesWithPlayer;
-    }
-    public ArrayList<Tile> findTilesAtPositionInLayer(Vec2 pos, String layer) {
-        ArrayList<Tile> tiles = this.game.level.tiles.get(layer);
-        ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
-        if (tiles == null) {
-            return null;
-        }
-        for (Tile tile : tiles) {
-            if (isPosInTile(tile, (int) pos.x, (int) pos.y)) {
-                tilesWithPlayer.add(tile);
-            }
-        }
-        return tilesWithPlayer;
-    }
-
     public boolean isColliding(Tile tile, Vec2 playerPos) {
         if (tile.tilemap.equals("elevation") && tile.j == 7) {
             return false;
@@ -254,17 +209,4 @@ public class ClientPlayer {
                 tile.y*tileDrawSize + tileDrawSize > playerPos.y-height/2f+walkHitboxHeightOffset;
     }
 
-    public boolean isPosInTile(Tile tile, int posX, int posY) {
-
-        return tile.x*this.game.levelRenderer.drawSize <= posX && posX < tile.x*this.game.levelRenderer.drawSize + this.game.levelRenderer.drawSize &&
-                tile.y*this.game.levelRenderer.drawSize <= posY && posY < tile.y*this.game.levelRenderer.drawSize + this.game.levelRenderer.drawSize;
-    }
-
-    public static ArrayList<Tile> combineTileLists(HashMap<String, ArrayList<Tile>> tileMap) {
-        ArrayList<Tile> combinedList = new ArrayList<>();
-        for (Map.Entry<String, ArrayList<Tile>> entry : tileMap.entrySet()) {
-            combinedList.addAll(entry.getValue());
-        }
-        return combinedList;
-    }
 }

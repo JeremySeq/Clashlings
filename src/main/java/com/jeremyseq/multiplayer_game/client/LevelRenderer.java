@@ -17,7 +17,7 @@ public class LevelRenderer {
     private final Game game;
     public HashMap<String, BufferedImage> tilemaps = new HashMap<>();
 
-    int drawSize = 48;
+    public int drawSize = 48;
     int tileSize = 64;
 
 
