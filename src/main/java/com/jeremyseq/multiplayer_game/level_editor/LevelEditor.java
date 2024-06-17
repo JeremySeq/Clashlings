@@ -29,10 +29,17 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public int tilemapI = 0;
     public int tilemapJ = 0;
 
+    public Vec2 camPos = new Vec2(0, 0);
+
     public Level level = new LevelReader().readLevel("level1");
+    public String layer = "1-2";
 
     private Timer timer;
     private boolean dPressed = false;
+    private boolean moveUp = false;
+    private boolean moveDown = false;
+    private boolean moveLeft = false;
+    private boolean moveRight = false;
 
     public LevelEditor() {
         this.loadImages();
@@ -67,12 +74,12 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
                 for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
                     for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
                         if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
-                            Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7)); // I don't know why its 7 it just is
+                            Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
                             if (dPressed) {
                                 System.out.println("Deleting");
-                                level.tiles.removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
+                                level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
                             } else {
-                                level.tiles.add(new Level.Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
+                                level.tiles.get(layer).add(new Level.Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
                             }
                         }
                     }
@@ -127,8 +134,10 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
             }
         }
 
-        for (Level.Tile tile : level.tiles) {
-            drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+        for (String l : level.tiles.keySet()) {
+            for (Level.Tile tile : level.tiles.get(l)) {
+                drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+            }
         }
 
         for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
@@ -181,23 +190,36 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
 
     public Vec2 getRenderPositionFromWorldPosition(Vec2 vec2) {
         vec2 = vec2.add(new Vec2(WIDTH/2f, HEIGHT/2f));
+        vec2 = vec2.subtract(camPos.multiply(drawSize));
         return vec2;
     }
 
     public Vec2 getWorldPositionFromRenderPosition(Vec2 vec2) {
+        vec2 = vec2.add(camPos.multiply(drawSize));
         vec2 = vec2.subtract(new Vec2(WIDTH/2f, HEIGHT/2f));
         return vec2;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        if (moveUp) {
+            camPos = camPos.add(new Vec2(0, -1));
+        } else if (moveDown) {
+            camPos = camPos.add(new Vec2(0, 1));
+        } else if (moveLeft) {
+            camPos = camPos.add(new Vec2(-1, 0));
+        } else if (moveRight) {
+            camPos = camPos.add(new Vec2(1, 0));
+        }
+
         repaint();
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
 
-        if (e.getKeyChar() == 's') {
+        if (e.getKeyChar() == 't') {
             System.out.println("Saving");
             try {
                 FileWriter writer = new FileWriter("src/main/resources/levels/level1.json");
@@ -212,7 +234,16 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_D) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            this.moveUp = true;
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            this.moveDown = true;
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            this.moveLeft = true;
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            this.moveRight = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_R) {
             this.dPressed = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -239,8 +270,20 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_D) {
+
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            this.moveUp = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            this.moveDown = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            this.moveLeft = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            this.moveRight = false;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_R) {
             this.dPressed = false;
         }
+
     }
 }

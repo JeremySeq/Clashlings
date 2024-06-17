@@ -3,7 +3,6 @@ package main.java.com.jeremyseq.multiplayer_game.client;
 import main.java.com.jeremyseq.multiplayer_game.Client;
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.swing.*;
@@ -35,7 +34,7 @@ public class Game extends JPanel implements ActionListener {
     public Game(Client client) {
         this.client = client;
 
-        this.clientPlayer = new ClientPlayer(this, client.username, new Vec2(0, 0));
+        this.clientPlayer = new ClientPlayer(this, client.username, new Vec2(0, 300));
         this.players.add(clientPlayer);
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -86,6 +85,7 @@ public class Game extends JPanel implements ActionListener {
     private void drawBackground(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
+
         levelRenderer.draw(g, this);
 
         for (ClientPlayer player : this.players) {
@@ -126,8 +126,18 @@ public class Game extends JPanel implements ActionListener {
                 dir = dir.add(new Vec2(0, 1));
             }
 
+
             if (dir.x != 0 || dir.y != 0) {
-                this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
+                this.clientPlayer.deltaMovement = dir.normalize().multiply(SPEED);
+                // if moving diagonal
+                if (dir.x != 0 && dir.y != 0) {
+                    this.clientPlayer.position.x = this.clientPlayer.position.add(dir.normalize().multiply(SPEED)).x;
+                    this.clientPlayer.tick();
+                    this.clientPlayer.position.y = this.clientPlayer.position.add(dir.normalize().multiply(SPEED)).y;
+                } else {
+                    this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
+                }
+
             }
             try {
                 client.out.writeUTF("$movement:" + dir.normalize().multiply(SPEED).toPacketString());
@@ -135,6 +145,8 @@ public class Game extends JPanel implements ActionListener {
                 throw new RuntimeException(ex);
             }
         }
+
+        this.clientPlayer.tick();
 
 
         // calling repaint() will trigger paintComponent() to run again,

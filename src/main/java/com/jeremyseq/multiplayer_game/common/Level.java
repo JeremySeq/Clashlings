@@ -3,13 +3,13 @@ package main.java.com.jeremyseq.multiplayer_game.common;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Level {
 
     public HashMap<String, String> metadata;
-    public List<Tile> tiles;
+    public HashMap<String, ArrayList<Tile>> tiles;
 
     public static class Tile {
         public int x;
@@ -24,9 +24,20 @@ public class Level {
             this.i = i;
             this.j = j;
         }
+
+        @Override
+        public String toString() {
+            return "Tile{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", tilemap='" + tilemap + '\'' +
+                    ", i=" + i +
+                    ", j=" + j +
+                    '}';
+        }
     }
 
-    public Level(HashMap<String, String> metadata, List<Tile> tiles) {
+    public Level(HashMap<String, String> metadata, HashMap<String, ArrayList<Tile>> tiles) {
         this.metadata = metadata;
         this.tiles = tiles;
     }

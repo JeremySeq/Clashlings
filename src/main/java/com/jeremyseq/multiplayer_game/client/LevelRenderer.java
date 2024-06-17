@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ public class LevelRenderer {
     private final Game game;
     public HashMap<String, BufferedImage> tilemaps = new HashMap<>();
 
-    int drawSize = 64;
+    int drawSize = 48;
     int tileSize = 64;
 
 
@@ -43,8 +44,25 @@ public class LevelRenderer {
             }
         }
 
-        for (Level.Tile tile : game.level.tiles) {
-            drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+        if (game.level != null) {
+            int numberOfLayers = 2;
+            for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
+                String layer;
+                if (i % 2 == 1) {
+                    layer = String.valueOf(i - (i-1)/2);
+                } else {
+                    String prev = String.valueOf((i-1) - (i-2)/2);
+                    String next = String.valueOf((i+1) - (i)/2);
+                    layer = prev + "-" + next;
+                }
+                ArrayList<Level.Tile> tileList = game.level.tiles.get(layer);
+                if (tileList == null || tileList.isEmpty()) {
+                    continue;
+                }
+                for (Level.Tile tile : tileList) {
+                    drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+                }
+            }
         }
     }
 

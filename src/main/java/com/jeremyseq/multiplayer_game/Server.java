@@ -1,6 +1,5 @@
 package main.java.com.jeremyseq.multiplayer_game;
 
-import main.java.com.jeremyseq.multiplayer_game.common.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerInterpretPacket;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
@@ -11,7 +10,6 @@ import java.io.*;
 public class Server
 {
     //initialize socket and input stream
-//    private Socket socket = null;
     private ServerSocket server = null;
     private final ServerGame serverGame = new ServerGame();
 
