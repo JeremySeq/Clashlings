@@ -153,6 +153,9 @@ public class ClientPlayer {
                     continue;
                 }
 
+                if (this.game.level.tiles.get(layer) == null) {
+                    continue;
+                }
                 for (Tile tile : this.game.level.tiles.get(layer)) {
                     if (tile.tilemap.equals("elevation") && !(tile.j == 3 || tile.j == 5)) {
                         continue;
