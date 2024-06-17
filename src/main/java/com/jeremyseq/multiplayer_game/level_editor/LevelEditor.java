@@ -10,9 +10,11 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -30,10 +32,12 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public int tilemapI = 0;
     public int tilemapJ = 0;
 
+    public LevelEditorMouseHandler mouseHandler = new LevelEditorMouseHandler(this);
+
     public Vec2 camPos = new Vec2(0, 0);
 
     public Level level = new LevelReader().readLevel("level1");
-    public String layer = "2-3";
+    public String layer = String.valueOf(this.level.metadata.layers);
 
     private Timer timer;
     private boolean dPressed = false;
@@ -68,28 +72,53 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         });
         receiveInput.start();
 
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                Vec2 mousePos = new Vec2(getMousePosition().x, getMousePosition().y);
-                for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
-                    for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
-                        if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
-                            Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
-                            if (dPressed) {
-                                System.out.println("Deleting");
-                                level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
-                            } else {
-                                level.tiles.get(layer).add(new Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        this.addMouseListener(mouseHandler);
+        this.addMouseWheelListener(mouseHandler);
 
         this.addKeyListener(this);
         this.setFocusable(true);
+    }
+
+    public void mousePressed(MouseEvent e) {
+        Vec2 mousePos = new Vec2(getMousePosition().x, getMousePosition().y);
+        for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
+            for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
+                if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
+                    Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
+                    if (dPressed) {
+                        System.out.println("Deleting");
+                        level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
+                    } else {
+                        level.tiles.computeIfAbsent(layer, k -> new ArrayList<>());
+                        level.tiles.get(layer).add(new Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
+                    }
+                }
+            }
+        }
+    }
+
+    public void mouseWheelUp() {
+        if (layer.equals(String.valueOf(level.metadata.layers))) {
+            return;
+        }
+        if (layer.contains("-")) {
+            layer = layer.split("-")[1];
+        } else {
+            layer = layer + "-" + (Integer.parseInt(layer) + 1);
+        }
+        System.out.println(layer);
+    }
+
+    public void mouseWheelDown() {
+        if (layer.equals("1")) {
+            return;
+        }
+        if (layer.contains("-")) {
+            layer = layer.split("-")[0];
+        } else {
+            layer = (Integer.parseInt(layer) - 1) + "-" + layer;
+        }
+        System.out.println(layer);
     }
 
     public void loadImages() {
@@ -145,8 +174,15 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
                 String next = String.valueOf((i + 1) - (i) / 2);
                 l = prev + "-" + next;
             }
+            if (level.tiles.get(l) == null) {
+                continue;
+            }
             for (Tile tile : level.tiles.get(l)) {
                 drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+            }
+
+            if (l.equals(layer)) {
+                break;
             }
         }
 
@@ -161,6 +197,9 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         }
 
         drawTile(g, imageObserver, 0, 0, tilemaps.get(this.tilemap), tilemapI, tilemapJ, true);
+        g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
+        Rectangle2D bounds = g.getFont().getStringBounds(layer, g.getFontMetrics().getFontRenderContext());
+        g.drawString("Layer: " + layer, drawSize + 10, (int) (bounds.getHeight()+2));
     }
 
     /**
