@@ -41,7 +41,6 @@ public class LevelRenderer {
     public void draw(Graphics g, ImageObserver imageObserver) {
 
         frameCounter++;
-        frameCounter++;
         if (frameCounter >= 3) {
             animationFrame++;
             frameCounter = 0;
