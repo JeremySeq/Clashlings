@@ -7,6 +7,7 @@ import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 
 public class ClientPlayer {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -109,8 +110,21 @@ public class ClientPlayer {
                     layer = prev + "-" + next;
                 }
 
+                // get tiles at the players position (on sublayers below and above the current layer) to check if they are stairs
+                ArrayList<Tile> tilesAtPosition = new ArrayList<>();
+                ArrayList<Tile> tilesAtPositionAbove = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+                        this.position.add(new Vec2(0, walkHitboxHeightOffset)), this.currentLayer + "-" + (this.currentLayer + 1));
+                ArrayList<Tile> tilesAtPositionBelow = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+                        this.position.add(new Vec2(0, walkHitboxHeightOffset)), (this.currentLayer-1) + "-" + this.currentLayer);
+                if (tilesAtPositionAbove != null) {
+                    tilesAtPosition.addAll(tilesAtPositionAbove);
+                }
+                if (tilesAtPositionBelow != null) {
+                    tilesAtPosition.addAll(tilesAtPositionBelow);
+                }
+
                 // check if player is on stairs, if they are, set onStairs to true
-                if (this.game.level.findTilesAtPosition(this.game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
+                if (tilesAtPosition.stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
                     this.onStairs = true;
                 } else if (onStairs) {
                     // if we move to a position that has a tile from the layer above, we set onStairs to false and we increase currentLayer
@@ -118,7 +132,7 @@ public class ClientPlayer {
                             game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                             String.valueOf(this.currentLayer + 1)).isEmpty()) {
                         // we are on the layer above
-                        System.out.println("we went up to layer " + (this.currentLayer + 1));
+                        System.out.println("You went up to layer " + (this.currentLayer + 1));
                         this.onStairs = false;
                         this.currentLayer = currentLayer + 1;
                     }
@@ -135,14 +149,9 @@ public class ClientPlayer {
                             this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                             String.valueOf(this.currentLayer - 1)).isEmpty()) {
                         // we are on the layer below
-                        System.out.println("we went down to layer " + (this.currentLayer - 1));
+                        System.out.println("You went down to layer " + (this.currentLayer - 1));
                         this.onStairs = false;
                         this.currentLayer = currentLayer - 1;
-                    }
-                    else if (this.game.level.findTilesAtPosition(this.game.levelRenderer,
-                            this.position.add(new Vec2(0, walkHitboxHeightOffset))).stream().noneMatch((streamTile) ->
-                            streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
-                        onStairs = false;
                     }
                 }
 
