@@ -49,11 +49,14 @@ public class LevelRenderer {
             }
         }
 
-        for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
-            for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
+        for (int i = 0; i < Game.WIDTH/drawSize + 1; i++) {
+            for (int j = 0; j < Game.HEIGHT/drawSize + 1; j++) {
                 drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
             }
         }
+
+        // draw foam around outline of layer 1
+        drawFoam(g, imageObserver);
 
         if (game.level != null) {
             int numberOfLayers = this.game.level.metadata.layers;
@@ -88,6 +91,21 @@ public class LevelRenderer {
                     drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
                 }
             }
+        }
+    }
+
+    /**
+     * draws foam around outline of layer 1
+     */
+    public void drawFoam(Graphics g, ImageObserver imageObserver) {
+        ArrayList<Tile> outlineLayerTiles = this.game.level.getOuterTilesInLayer("1");
+        for (Tile tile : outlineLayerTiles) {
+            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 1);
+
+            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 0);
+            drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 2+3*animationFrame, 1);
+            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
+            drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
         }
     }
 
