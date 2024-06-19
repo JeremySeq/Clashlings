@@ -100,88 +100,59 @@ public class ClientPlayer {
     public void handleCollisions() {
         if (this.game.level != null) {
             int numberOfLayers = this.game.level.metadata.layers;
-            for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
-                String layer;
-                if (i % 2 == 1) {
-                    layer = String.valueOf(i - (i-1)/2);
-                } else {
-                    String prev = String.valueOf((i-1) - (i-2)/2);
-                    String next = String.valueOf((i+1) - (i)/2);
-                    layer = prev + "-" + next;
-                }
 
-                // get tiles at the players position (on sublayers below and above the current layer) to check if they are stairs
-                ArrayList<Tile> tilesAtPosition = new ArrayList<>();
-                ArrayList<Tile> tilesAtPositionAbove = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
-                        this.position.add(new Vec2(0, walkHitboxHeightOffset)), this.currentLayer + "-" + (this.currentLayer + 1));
-                ArrayList<Tile> tilesAtPositionBelow = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
-                        this.position.add(new Vec2(0, walkHitboxHeightOffset)), (this.currentLayer-1) + "-" + this.currentLayer);
-                if (tilesAtPositionAbove != null) {
-                    tilesAtPosition.addAll(tilesAtPositionAbove);
-                }
-                if (tilesAtPositionBelow != null) {
-                    tilesAtPosition.addAll(tilesAtPositionBelow);
-                }
+            // get tiles at the players position (on sublayers below and above the current layer) to check if they are stairs
+            ArrayList<Tile> tilesAtPosition = new ArrayList<>();
+            ArrayList<Tile> tilesAtPositionAbove = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+                    this.position.add(new Vec2(0, walkHitboxHeightOffset)), this.currentLayer + "-" + (this.currentLayer + 1));
+            ArrayList<Tile> tilesAtPositionBelow = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+                    this.position.add(new Vec2(0, walkHitboxHeightOffset)), (this.currentLayer-1) + "-" + this.currentLayer);
+            if (tilesAtPositionAbove != null) {
+                tilesAtPosition.addAll(tilesAtPositionAbove);
+            }
+            if (tilesAtPositionBelow != null) {
+                tilesAtPosition.addAll(tilesAtPositionBelow);
+            }
 
-                // check if player is on stairs, if they are, set onStairs to true
-                if (tilesAtPosition.stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
-                    this.onStairs = true;
-                } else if (onStairs) {
-                    // if we move to a position that has a tile from the layer above, we set onStairs to false and we increase currentLayer
-                    if (this.currentLayer + 1 <= numberOfLayers && !this.game.level.findTilesAtPositionInLayer(
-                            game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
-                            String.valueOf(this.currentLayer + 1)).isEmpty()) {
-                        // we are on the layer above
-                        System.out.println("You went up to layer " + (this.currentLayer + 1));
-                        this.onStairs = false;
-                        this.currentLayer = currentLayer + 1;
-                    }
-                    // this would happen if we moved from the current layer to the stairs and then back to the current layer
-                    else if (!this.game.level.findTilesAtPositionInLayer(
-                            game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
-                            String.valueOf(this.currentLayer)).isEmpty()) {
-                        this.onStairs = false;
-                        System.out.println("You had a moment of indecision");
-                    }
-                    // if we move to a position that has a tile from the layer below, we set onStairs to false and we decrease currentLayer
-                    else if (this.currentLayer - 1 > 0 && !this.game.level.findTilesAtPositionInLayer(
-                            game.levelRenderer,
-                            this.position.add(new Vec2(0, walkHitboxHeightOffset)),
-                            String.valueOf(this.currentLayer - 1)).isEmpty()) {
-                        // we are on the layer below
-                        System.out.println("You went down to layer " + (this.currentLayer - 1));
-                        this.onStairs = false;
-                        this.currentLayer = currentLayer - 1;
-                    }
+            // check if player is on stairs, if they are, set onStairs to true
+            if (tilesAtPosition.stream().anyMatch((streamTile) -> streamTile.tilemap.equals("elevation") && streamTile.j == 7)) {
+                this.onStairs = true;
+            } else if (onStairs) {
+                // if we move to a position that has a tile from the layer above, we set onStairs to false and we increase currentLayer
+                if (this.currentLayer + 1 <= numberOfLayers && !this.game.level.findTilesAtPositionInLayer(
+                        game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                        String.valueOf(this.currentLayer + 1)).isEmpty()) {
+                    // we are on the layer above
+                    System.out.println("You went up to layer " + (this.currentLayer + 1));
+                    this.onStairs = false;
+                    this.currentLayer = currentLayer + 1;
                 }
+                // this would happen if we moved from the current layer to the stairs and then back to the current layer
+                else if (!this.game.level.findTilesAtPositionInLayer(
+                        game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                        String.valueOf(this.currentLayer)).isEmpty()) {
+                    this.onStairs = false;
+                    System.out.println("You had a moment of indecision");
+                }
+                // if we move to a position that has a tile from the layer below, we set onStairs to false and we decrease currentLayer
+                else if (this.currentLayer - 1 > 0 && !this.game.level.findTilesAtPositionInLayer(
+                        game.levelRenderer,
+                        this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                        String.valueOf(this.currentLayer - 1)).isEmpty()) {
+                    // we are on the layer below
+                    System.out.println("You went down to layer " + (this.currentLayer - 1));
+                    this.onStairs = false;
+                    this.currentLayer = currentLayer - 1;
+                }
+            }
 
-                // don't do collisions for layers beneath current layer and the "in-between" sublayer below it
-                if (i < this.currentLayer*2-1 - 1) {
-                    continue;
-                }
-                // don't do collisions for tiles in current layer
-                if (layer.equals(String.valueOf(this.currentLayer))) {
-                    continue;
-                }
-
-                if (onStairs && (layer.equals(String.valueOf(this.currentLayer - 1)) || layer.equals(String.valueOf(this.currentLayer + 1)))) {
-                    continue;
-                }
-
-                if (this.game.level.tiles.get(layer) == null) {
-                    continue;
-                }
-                for (Tile tile : this.game.level.tiles.get(layer)) {
-                    if (tile.tilemap.equals("elevation") && !(tile.j == 3 || tile.j == 5)) {
-                        continue;
-                    }
+            if (!onStairs && this.currentLayer != numberOfLayers && this.game.level.tiles.get(this.currentLayer + "-" + (this.currentLayer+1)) != null) {
+                for (Tile tile : this.game.level.tiles.get(this.currentLayer + "-" + (this.currentLayer+1))) {
                     handleTileCollision(tile);
                 }
-
-                // outlines the current layer with tiles which will act as barriers so the player doesn't walk off the layer
-                for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
-                    handleTileCollision(tile);
-                }
+            }
+            for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
+                handleTileCollision(tile);
             }
         }
     }
