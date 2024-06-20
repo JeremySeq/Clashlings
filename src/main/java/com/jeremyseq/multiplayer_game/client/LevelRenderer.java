@@ -33,6 +33,7 @@ public class LevelRenderer {
             tilemaps.put("elevation", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Elevation.png"))));
             tilemaps.put("water", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png"))));
             tilemaps.put("foam", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Foam/Foam.png"))));
+            tilemaps.put("shadows", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Shadows.png"))));
         } catch (IOException exc) {
             System.out.println("Error opening image file: " + exc.getMessage());
         }
@@ -62,11 +63,13 @@ public class LevelRenderer {
             int numberOfLayers = this.game.level.metadata.layers;
             for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
                 String layer;
+                String prev;
+                String next;
                 if (i % 2 == 1) {
                     layer = String.valueOf(i - (i-1)/2);
                 } else {
-                    String prev = String.valueOf((i-1) - (i-2)/2);
-                    String next = String.valueOf((i+1) - (i)/2);
+                    prev = String.valueOf((i-1) - (i-2)/2);
+                    next = String.valueOf((i+1) - (i)/2);
                     layer = prev + "-" + next;
                 }
                 ArrayList<Tile> tileList = game.level.tiles.get(layer);
@@ -74,21 +77,16 @@ public class LevelRenderer {
                     continue;
                 }
 
-
-                // draw foam around outline of layer 1
-                if (i == 1) {
-                    ArrayList<Tile> outlineLayerTiles = this.game.level.getOuterTilesInLayer(layer);
-                    for (Tile tile : outlineLayerTiles) {
-                        drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 1);
-
-                        drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 0);
-                        drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 2+3*animationFrame, 1);
-                        drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
-                        drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
-                    }
+                if (layer.contains("-")) {
+                    drawShadowUnderElevationForLayer(g, imageObserver, layer);
                 }
+
                 for (Tile tile : tileList) {
                     drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+                }
+
+                if (layer.contains("-")) {
+                    drawParticlesOnElevation(g, imageObserver, layer, i == 2);
                 }
             }
         }
@@ -109,6 +107,34 @@ public class LevelRenderer {
         }
     }
 
+    /**
+     * draws tile shadows for a particular sublayer
+     */
+    public void drawShadowUnderElevationForLayer(Graphics g, ImageObserver imageObserver, String layer) {
+        for (Tile tile : game.level.tiles.get(layer)) {
+            if (tile.tilemap.equals("elevation") && !(tile.j == 0 || tile.j == 4)) {
+                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 1, 1);
+
+                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("shadows"), 1, 0);
+                drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 2, 1);
+                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("shadows"), 1, 2);
+                drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 0, 1);
+            }
+        }
+    }
+
+
+    /**
+     * draws particles on sublayer
+     * @param isSand if true, draws sand particles instead of grass particles, should be used if the sublayer is on sand
+     */
+    public void drawParticlesOnElevation(Graphics g, ImageObserver imageObserver, String elevationLayer, boolean isSand) {
+        for (Tile tile : game.level.tiles.get(elevationLayer)) {
+            if (tile.tilemap.equals("elevation") && (tile.j == 3 || tile.j == 5 || tile.j == 7)) {
+                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("flat"), isSand ? 9 : 4, 0);
+            }
+        }
+    }
 
     /**
      * @param x x-coordinate to draw on screen
