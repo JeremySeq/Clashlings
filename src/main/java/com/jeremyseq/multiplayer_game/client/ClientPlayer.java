@@ -151,8 +151,11 @@ public class ClientPlayer {
                     handleTileCollision(tile);
                 }
             }
-            for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
-                handleTileCollision(tile);
+            if (!onStairs) {
+                // outlines the current layer with tiles which will act as barriers so the player doesn't walk off the layer
+                for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
+                    handleTileCollision(tile);
+                }
             }
         }
     }
@@ -161,6 +164,7 @@ public class ClientPlayer {
     public void handleTileCollision(Tile tile) {
         int tileSize = this.game.levelRenderer.drawSize;
         if (isColliding(tile, this.position)) {
+            System.out.println(tile);
             if (position.y - walkHitboxHeight/2f + walkHitboxHeightOffset < tile.y*tileSize) { // if top of the hitbox is above the top of the tile
                 position.y = tile.y*tileSize - walkHitboxHeight/2f - walkHitboxHeightOffset; // moves the bottom of hitbox to top of tile
             } else if (position.y + walkHitboxHeight/2f + walkHitboxHeightOffset > tile.y*tileSize + tileSize) { // if bottom of the hitbox is below the bottom of the tile
@@ -168,6 +172,7 @@ public class ClientPlayer {
             }
         }
         if (isColliding(tile, this.position)) {
+            System.out.println(tile);
             if (this.position.x-walkHitboxWidth/2f < tile.x*tileSize) { // if left side of hitbox is left of the left side of the tile
                 this.position.x = tile.x*tileSize - walkHitboxWidth/2f; // moves right side of hitbox to left side of tile
             } else if (this.position.x + walkHitboxWidth/2f > tile.x*tileSize + tileSize) { // if right side of hitbox is right of the tile
