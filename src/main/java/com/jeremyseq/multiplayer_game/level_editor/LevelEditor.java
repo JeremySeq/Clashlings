@@ -173,8 +173,8 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         }
 
         // draw water background
-        for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
-            for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
+        for (int i = 0; i < Game.WIDTH/drawSize + 1; i++) {
+            for (int j = 0; j < Game.HEIGHT/drawSize + 1; j++) {
                 drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
             }
         }
