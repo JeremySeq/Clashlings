@@ -1,6 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Building;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
@@ -155,6 +156,15 @@ public class ClientPlayer {
                 // outlines the current layer with tiles which will act as barriers so the player doesn't walk off the layer
                 for (Tile tile : this.game.level.outlineLayer(String.valueOf(this.currentLayer))) {
                     handleTileCollision(tile);
+                }
+            }
+
+            // uses tile collisions for buildings TODO: make a new function called handleBuildingCollision() for buildings specifically
+            for (Building building : this.game.level.buildings.get(String.valueOf(this.currentLayer))) {
+                for (int i = 0; i < building.type.tileWidth; i++) {
+                    for (int j = 0; j < building.type.tileHeight; j++) {
+                        handleTileCollision(new Tile(building.x + i, building.y + j, "elevation", 0, 0));
+                    }
                 }
             }
         }

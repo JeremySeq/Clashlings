@@ -1,5 +1,8 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
+import main.java.com.jeremyseq.multiplayer_game.common.level.Building;
+import main.java.com.jeremyseq.multiplayer_game.common.level.BuildingState;
+import main.java.com.jeremyseq.multiplayer_game.common.level.BuildingType;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
@@ -16,6 +19,9 @@ public class LevelRenderer {
 
     private final Game game;
     public HashMap<String, BufferedImage> tilemaps = new HashMap<>();
+    public HashMap<BuildingType, BufferedImage> buildings = new HashMap<>();
+    public HashMap<BuildingType, BufferedImage> contruction_buildings = new HashMap<>();
+    public HashMap<BuildingType, BufferedImage> destroyed_buildings = new HashMap<>();
 
     public int drawSize = 48;
     int tileSize = 64;
@@ -34,6 +40,17 @@ public class LevelRenderer {
             tilemaps.put("water", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png"))));
             tilemaps.put("foam", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Foam/Foam.png"))));
             tilemaps.put("shadows", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Shadows.png"))));
+
+            for (BuildingType buildingType : BuildingType.values()) {
+                buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.imageFileName))));
+            }
+            for (BuildingType buildingType : BuildingType.values()) {
+                contruction_buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.constructionImageFileName))));
+            }
+            for (BuildingType buildingType : BuildingType.values()) {
+                destroyed_buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.destroyedImageFileName))));
+            }
+
         } catch (IOException exc) {
             System.out.println("Error opening image file: " + exc.getMessage());
         }
@@ -85,6 +102,13 @@ public class LevelRenderer {
                     drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
                 }
 
+                ArrayList<Building> buildingList = game.level.buildings.get(layer);
+                if (buildingList != null && !buildingList.isEmpty()) {
+                    for (Building building : buildingList) {
+                        drawBuilding(g, imageObserver, building);
+                    }
+                }
+
                 if (layer.contains("-")) {
                     drawParticlesOnElevation(g, imageObserver, layer, i == 2);
                 }
@@ -105,6 +129,26 @@ public class LevelRenderer {
             drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
             drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
         }
+    }
+
+    public void drawBuilding(Graphics g, ImageObserver imageObserver, Building building) {
+        Vec2 renderPos = new Vec2(building.x*drawSize, building.y*drawSize);
+        renderPos = game.getRenderPositionFromWorldPosition(renderPos);
+        int x2 = (int) renderPos.x;
+        int y2 = (int) renderPos.y;
+        BufferedImage image;
+        if (building.state == BuildingState.BUILT) {
+            image = buildings.get(building.type);
+        } else if (building.state == BuildingState.CONSTRUCTION) {
+            image = contruction_buildings.get(building.type);
+        } else {
+            image = destroyed_buildings.get(building.type);
+        }
+        g.drawImage(
+                image,
+                x2, y2, drawSize*building.type.tileWidth, drawSize*building.type.tileHeight,
+                imageObserver
+        );
     }
 
     /**

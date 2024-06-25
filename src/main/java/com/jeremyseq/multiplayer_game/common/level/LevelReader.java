@@ -34,7 +34,7 @@ public class LevelReader {
     public Level readLevelString(String data) {
         Gson gson = new Gson();
         if (gson.fromJson(data, Level.class) == null) {
-            return new Level(new LevelMetadata(1, new Vec2(0, 0)), new HashMap<>());
+            return new Level(new LevelMetadata(1, new Vec2(0, 0)), new HashMap<>(), new HashMap<>());
         }
         return gson.fromJson(data, Level.class);
     }

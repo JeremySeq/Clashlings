@@ -13,10 +13,12 @@ public class Level {
 
     public LevelMetadata metadata;
     public HashMap<String, ArrayList<Tile>> tiles;
+    public HashMap<String, ArrayList<Building>> buildings;
 
-    public Level(LevelMetadata metadata, HashMap<String, ArrayList<Tile>> tiles) {
+    public Level(LevelMetadata metadata, HashMap<String, ArrayList<Tile>> tiles, HashMap<String, ArrayList<Building>> buildings) {
         this.metadata = metadata;
         this.tiles = tiles;
+        this.buildings = buildings;
     }
 
     public String toJson() {
