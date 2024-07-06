@@ -38,6 +38,14 @@ public class Vec2 {
         return this.x == vec2.x && this.y == vec2.y;
     }
 
+    public double length() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
+
+    public double distance(Vec2 vec2) {
+        return Math.sqrt(Math.pow(this.x - vec2.x, 2) + Math.pow(this.y - vec2.y, 2));
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(x, y);

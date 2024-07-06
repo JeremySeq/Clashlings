@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class SpriteRenderer {
@@ -17,14 +18,52 @@ public class SpriteRenderer {
     private final int tileHeight;
     private final int drawSize;
 
-    private final int framesPerAnimation;
     private int animationCount;
+    private final int[] framesPerAnimation;
+    public SpriteRenderType renderType;
 
     private int playingAnimation;
 
-    public SpriteRenderer(String imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
+    public enum SpriteRenderType {
+        /**
+         * used for sprites with a single texture and no animation
+         */
+        SIMPLE,
+        /**
+         * used for sprites with multiple animations in the form of a sheet with a consistent amount of frames per animation
+         */
+        ANIMATED_TILES,
+        /**
+         * used for sprites with multiple animations in the form of a sheet with a varying amount of frames per animation
+         */
+        ANIMATED_TILES_VARYING,
+    }
+
+    public SpriteRenderer(String imageFile, int tileSize, int drawSize) {
+        this.renderType = SpriteRenderType.SIMPLE;
+        this.imageFile = imageFile;
+        this.framesPerAnimation = new int[]{1};
+        this.animationCount = 1;
+        this.tileHeight = tileSize;
+        this.tileWidth = tileSize;
+        this.drawSize = drawSize;
+    }
+
+    public SpriteRenderer(String imageFile, int[] framesPerAnimation, int tileSize, int drawSize) {
+        this.renderType = SpriteRenderType.ANIMATED_TILES_VARYING;
         this.imageFile = imageFile;
         this.framesPerAnimation = framesPerAnimation;
+        this.animationCount = framesPerAnimation.length;
+        this.tileHeight = tileSize;
+        this.tileWidth = tileSize;
+        this.drawSize = drawSize;
+    }
+
+    public SpriteRenderer(String imageFile, int animationCount, int framesPerAnimation, int tileSize, int drawSize) {
+        this.renderType = SpriteRenderType.ANIMATED_TILES;
+        this.imageFile = imageFile;
+        this.framesPerAnimation = new int[animationCount];
+        Arrays.fill(this.framesPerAnimation, framesPerAnimation);
         this.animationCount = animationCount;
         this.tileHeight = tileSize;
         this.tileWidth = tileSize;
@@ -39,6 +78,14 @@ public class SpriteRenderer {
                 System.out.println("Error opening image file: " + exc.getMessage());
             }
         }
+    }
+
+    public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int x, int y) {
+        return drawAnimation(g, imageObserver, x, y, false);
+    }
+
+    public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int x, int y, boolean flipped) {
+        return drawAnimation(g, imageObserver, 0, x, y, flipped);
     }
 
     public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped) {
@@ -71,7 +118,7 @@ public class SpriteRenderer {
         if (frameCounter >= 3) {
             animationFrame++;
             frameCounter = 0;
-            if (animationFrame >= framesPerAnimation) {
+            if (animationFrame >= framesPerAnimation[animation]) {
                 finished = true;
                 animationFrame = 0;
             }

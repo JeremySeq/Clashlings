@@ -2,6 +2,7 @@ package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.Client;
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
+import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
@@ -29,6 +30,8 @@ public class Game extends JPanel implements ActionListener {
     public MouseHandler mouseHandler = new MouseHandler(this);
     public LevelRenderer levelRenderer = new LevelRenderer(this);
 
+    public Goblin enemy;
+
     private Timer timer;
 
     public Game(Client client) {
@@ -38,6 +41,14 @@ public class Game extends JPanel implements ActionListener {
         this.players.add(clientPlayer);
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+        // get level from server
+        try {
+            String string = client.server_response.readUTF();
+            ClientInterpretPacket.interpretPacket(this, string);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Thread receiveServerResponses = new Thread(() -> {
             while (true) {
@@ -49,6 +60,8 @@ public class Game extends JPanel implements ActionListener {
             }
         });
         receiveServerResponses.start();
+
+        this.enemy = new Goblin(this, this.level, new Vec2(100, 300));
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);
@@ -88,9 +101,64 @@ public class Game extends JPanel implements ActionListener {
 
         levelRenderer.draw(g, this);
 
+        enemy.draw(g, this);
+
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
         }
+//
+//        int width = 10;
+//        int height = 10;
+//        int layers = 3;
+//        Grid grid = new Grid(width, height, layers);
+//
+//        grid.setObstacle(4, 4, 0);
+//        grid.setObstacle(4, 5, 0);
+//        grid.setObstacle(4, 6, 0);
+//        grid.setObstacle(4, 7, 0);
+//
+//        // Set ground nodes
+//        for (int x = 0; x < width; x++) {
+//            for (int y = 0; y < height; y++) {
+//                grid.setGround(x, y, 0);
+//                grid.setGround(x, y, 1);
+//                grid.setGround(x, y, 2);
+//            }
+//        }
+//
+//        // Set staircases
+//        grid.setStair(5, 5, 0, 1);
+//        grid.setStair(5, 5, 1, 0);
+//
+//        grid.setStair(7, 7, 1, 2);
+//        grid.setStair(7, 7, 2, 1);
+//
+//        for (int k = 0; k < grid.getLayers(); k++) {
+//            for (int i = 0; i < grid.getWidth(); i++) {
+//                for (int j = 0; j < grid.getWidth(); j++) {
+//                    if (grid.getNode(i, j, k).isStair()) {
+//                        Vec2 renderPos = new Vec2(grid.getNode(i, j, k).getX() * levelRenderer.drawSize, grid.getNode(i, j, k).getY() * levelRenderer.drawSize);
+//                        renderPos = this.getRenderPositionFromWorldPosition(renderPos);
+//                        g.setColor(Color.BLUE);
+//                        g.fillRect((int) renderPos.x, (int) renderPos.y, levelRenderer.drawSize, levelRenderer.drawSize);
+//                    }
+//
+//                }
+//            }
+//        }
+//
+//        AStarPathfinding pathfinding = new AStarPathfinding(grid);
+//        Node start = grid.getNode(0, 0, 0);
+//        Node end = grid.getNode(9, 9, 2);
+//        List<Node> path = pathfinding.findPath(start, end);
+//        for (Node node : path) {
+//            Vec2 renderPos = new Vec2(node.getX() * levelRenderer.drawSize, node.getY() * levelRenderer.drawSize);
+//            renderPos = this.getRenderPositionFromWorldPosition(renderPos);
+//            int x2 = (int) renderPos.x;
+//            int y2 = (int) renderPos.y;
+//            g.setColor(Color.WHITE);
+//            g.drawRect(x2, y2, levelRenderer.drawSize, levelRenderer.drawSize);
+//        }
     }
 
     public Vec2 getRenderPositionFromWorldPosition(Vec2 vec2) {
@@ -107,6 +175,9 @@ public class Game extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        this.enemy.tick();
+
         // this method is called by the timer every DELAY ms.
         // use this space to update the state of your game or animation
         // before the graphics are redrawn.
