@@ -43,6 +43,10 @@ public class Goblin {
             new int[]{7, 6, 6, 6, 6}, 192, 140);
 
     public void draw(Graphics g, ImageObserver imageObserver) {
+
+        // draw pathfinding debugging
+        DebugRenderer.drawPathfinding(this.currentPath, this.game, g, this.grid);
+
         Vec2 renderPos = this.position;
         if (game != null) {
             renderPos = game.getRenderPositionFromWorldPosition(renderPos);
@@ -60,9 +64,6 @@ public class Goblin {
 
             spriteRenderer.drawAnimation(g, imageObserver, 1, (int) renderPos.x, (int) renderPos.y, flipped);
         }
-
-        // draw pathfinding debugging
-        DebugRenderer.drawPathfinding(this.currentPath, this.game, g, this.grid);
     }
 
     public void initializePathfinding() {

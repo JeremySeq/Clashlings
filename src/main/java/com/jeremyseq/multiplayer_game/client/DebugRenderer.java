@@ -25,18 +25,16 @@ public class DebugRenderer {
                 int centerX = x + game.levelRenderer.drawSize / 2;
                 int centerY = y + game.levelRenderer.drawSize / 2;
 
+                if (node.isStair()) {
+                    g.setColor(Color.BLUE);
+                    g.fillRect(x, y, game.levelRenderer.drawSize, game.levelRenderer.drawSize);
+                }
+
                 if (node == path.get(0)) {
                     g.setColor(Color.GREEN);
                     g.fillRect(x, y, game.levelRenderer.drawSize, game.levelRenderer.drawSize);
                 } else if (node == path.get(path.size()-1)) {
                     g.setColor(Color.RED);
-                    g.fillRect(x, y, game.levelRenderer.drawSize, game.levelRenderer.drawSize);
-                }
-
-                g.setColor(Color.WHITE);
-
-                if (node.isStair()) {
-                    g.setColor(Color.BLUE);
                     g.fillRect(x, y, game.levelRenderer.drawSize, game.levelRenderer.drawSize);
                 }
 
