@@ -238,6 +238,9 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
                 if (mousePos != null) {
                     if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
                         g.drawRect(i*drawSize+1, j*drawSize+1, drawSize, drawSize);
+                        Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
+                        g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
+                        g.drawString("Pos: " + (int) tilePos.x + ", " + (int) tilePos.y, 5, HEIGHT-20);
                     }
                 }
             }
