@@ -113,10 +113,6 @@ public class Goblin {
         Node start = grid.getNode(9, 2, 2);
         Node end = grid.getNode(4, 6, 0);
         List<Node> path = new AStarPathfinding(grid).findPath(start, end);
-        System.out.println("Path:");
-        for (Node node : path) {
-            System.out.println("(" + node.getX() + ", " + node.getY() + ", " + node.getZ() + ")");
-        }
         this.currentPath = new ArrayList<>(path);
     }
 }
