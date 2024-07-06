@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ClientPlayer {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
             "/TinySwordsPack/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png",
-            8, 6, 192, 140);
+            8, 6, 192, 144);
     public final String username;
     public final Game game;
     public Vec2 position;

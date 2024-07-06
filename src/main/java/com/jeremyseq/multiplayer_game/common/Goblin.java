@@ -40,7 +40,7 @@ public class Goblin {
 
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
             "/TinySwordsPack/Factions/Goblins/Troops/Torch/Red/Torch_Red.png",
-            new int[]{7, 6, 6, 6, 6}, 192, 140);
+            new int[]{7, 6, 6, 6, 6}, 192, 144);
 
     public void draw(Graphics g, ImageObserver imageObserver) {
 
