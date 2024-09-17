@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game;
 
+import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerInterpretPacket;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
@@ -88,6 +89,12 @@ public class Server
         {
             Thread.sleep(10); // 100 ticks per second
 
+            if (!this.serverGame.players.isEmpty()) {
+                for (Goblin goblin : this.serverGame.enemies.values()) {
+                    goblin.tick();
+                }
+            }
+
             for (ServerPlayer player : this.serverGame.players) {
                 DataOutputStream out = new DataOutputStream(player.socket.getOutputStream());
 
@@ -97,6 +104,11 @@ public class Server
                     }
                     out.writeUTF("$pos:username=" + otherPlayer.username + "$" + "pos=" + otherPlayer.pos.toPacketString());
                     out.writeUTF("$movement." + otherPlayer.username + ":" + otherPlayer.deltaMovement.toPacketString());
+                }
+
+                for (Goblin goblin : this.serverGame.enemies.values()) {
+                    out.writeUTF("$enemy_pos:id=" + goblin.id + "$" + "pos=" + goblin.position.toPacketString());
+                    out.writeUTF("$enemy_movement:id=" + goblin.id + "$" + "movement=" + goblin.deltaMovement.toPacketString());
                 }
             }
         }

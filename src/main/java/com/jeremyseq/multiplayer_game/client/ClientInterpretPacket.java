@@ -1,6 +1,7 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
+import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.common.level.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
@@ -44,6 +45,32 @@ public class ClientInterpretPacket {
         } else if (line.startsWith("$level:")) {
             String s = line.substring(7);
             game.level = new LevelReader().readLevelString(s);
+        } else if (line.startsWith("$enemy_pos:")) {
+            String s = line.substring(11);
+            String id = s.split("\\$")[0];
+            id = id.substring(3);
+            String posStr = s.split("\\$")[1];
+            posStr = posStr.substring(4);
+            Vec2 pos = Vec2.fromString(posStr);
+            Goblin enemy = game.enemies.get(Long.parseLong(id));
+            if (enemy == null) {
+                enemy = new Goblin(game, game.level, pos);
+                game.enemies.put(Long.valueOf(id), enemy);
+            } else {
+                enemy.position = pos;
+            }
+
+        } else if (line.startsWith("$enemy_movement:")) {
+            String s = line.substring(16);
+            String id = s.split("\\$")[0];
+            id = id.substring(3);
+            String posStr = s.split("\\$")[1];
+            posStr = posStr.substring(9);
+            Vec2 pos = Vec2.fromString(posStr);
+            Goblin enemy = game.enemies.get(Long.parseLong(id));
+            if (enemy != null) {
+                enemy.deltaMovement = pos;
+            }
         } else {
             System.out.println(line);
         }

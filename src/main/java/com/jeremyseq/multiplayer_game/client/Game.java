@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class Game extends JPanel implements ActionListener {
 
@@ -31,6 +32,7 @@ public class Game extends JPanel implements ActionListener {
     public LevelRenderer levelRenderer = new LevelRenderer(this);
 
     public Goblin enemy;
+    public Hashtable<Long, Goblin> enemies = new Hashtable<>();
 
     private Timer timer;
 
@@ -101,7 +103,9 @@ public class Game extends JPanel implements ActionListener {
 
         levelRenderer.draw(g, this);
 
-        enemy.draw(g, this);
+        for (Goblin goblin : this.enemies.values()) {
+            goblin.draw(g, this);
+        }
 
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
@@ -122,8 +126,6 @@ public class Game extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        this.enemy.tick();
 
         // this method is called by the timer every DELAY ms.
         // use this space to update the state of your game or animation

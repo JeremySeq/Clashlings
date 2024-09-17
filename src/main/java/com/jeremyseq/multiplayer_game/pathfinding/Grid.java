@@ -113,6 +113,10 @@ public class Grid {
         return new Vec2(x + xOffset, y + yOffset);
     }
 
+    public Vec2 tilePosToGridPos(int x, int y) {
+        return new Vec2(x - xOffset, y - yOffset);
+    }
+
     public int getxOffset() {
         return xOffset;
     }

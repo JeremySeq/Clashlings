@@ -1,19 +1,22 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
+import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
 import main.java.com.jeremyseq.multiplayer_game.common.level.LevelReader;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Objects;
 
 public class ServerGame {
     public Level level = new LevelReader().readLevel("level1");
     public ArrayList<ServerPlayer> players = new ArrayList<>();
+    public Hashtable<Long, Goblin> enemies = new Hashtable<>();
 
     public ServerGame() {
-
+        enemies.put(0L, new Goblin(level, new Vec2(0, 0)));
     }
 
     public ServerPlayer getPlayerBySocket(Socket socket) {

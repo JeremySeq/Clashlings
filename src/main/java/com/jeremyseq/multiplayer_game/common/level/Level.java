@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class Level {
 
+    public static final int WORLD_TILE_SIZE = 48;
     public LevelMetadata metadata;
     public HashMap<String, ArrayList<Tile>> tiles;
     public HashMap<String, ArrayList<Building>> buildings;

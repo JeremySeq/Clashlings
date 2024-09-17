@@ -1,9 +1,9 @@
 package main.java.com.jeremyseq.multiplayer_game.common;
 
-import main.java.com.jeremyseq.multiplayer_game.client.DebugRenderer;
 import main.java.com.jeremyseq.multiplayer_game.client.Game;
 import main.java.com.jeremyseq.multiplayer_game.client.SpriteRenderer;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
+import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.Grid;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.Node;
@@ -15,27 +15,29 @@ import java.util.List;
 
 public class Goblin {
     public Game game; // on client only
+    public long id;
     public Level level;
     public Vec2 position;
     public Grid grid;
     public ArrayList<Node> currentPath = new ArrayList<>();
     private Vec2 targetPos;
-    public static final float MOVE_SPEED = 3;
+    public static final float MOVE_SPEED = 1.6f;
     private boolean flipped = false;
+    public Vec2 deltaMovement = new Vec2(0, 0);
 
     // for use on client
     public Goblin(Game game, Level level, Vec2 position) {
         this.game = game;
         this.level = level;
         this.position = position;
-        this.initializePathfinding();
-        this.moveTo(new Vec2(5, 7));
     }
 
     // for use on server
     public Goblin(Level level, Vec2 position) {
         this.level = level;
         this.position = position;
+        this.initializePathfinding();
+        this.moveToTile(0, 5);
     }
 
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -44,22 +46,21 @@ public class Goblin {
 
     public void draw(Graphics g, ImageObserver imageObserver) {
 
-        // draw pathfinding debugging
-        DebugRenderer.drawPathfinding(this.currentPath, this.game, g, this.grid);
+        // draw pathfinding debugging, doesn't work anymore, because client never receives path from server
+//        DebugRenderer.drawPathfinding(this.currentPath, this.game, g, this.grid);
 
         Vec2 renderPos = this.position;
         if (game != null) {
             renderPos = game.getRenderPositionFromWorldPosition(renderPos);
         }
 
-        if (this.targetPos == null) {
+        if (this.deltaMovement.equals(new Vec2(0, 0))) {
             spriteRenderer.drawAnimation(g, imageObserver, 0, (int) renderPos.x, (int) renderPos.y, flipped);
         } else {
-
-            if (this.position.x - this.targetPos.x < 0) {
-                flipped = false;
-            } else if (this.position.x - this.targetPos.x > 0) {
+            if (this.deltaMovement.x < 0) {
                 flipped = true;
+            } else if (this.deltaMovement.x > 0) {
+                flipped = false;
             }
 
             spriteRenderer.drawAnimation(g, imageObserver, 1, (int) renderPos.x, (int) renderPos.y, flipped);
@@ -72,6 +73,7 @@ public class Goblin {
 
     public void tick() {
         if (this.currentPath.isEmpty()) {
+            this.deltaMovement = new Vec2(0, 0);
             return;
         }
 
@@ -79,8 +81,8 @@ public class Goblin {
             // Initialize target position
             Node node = this.currentPath.get(0);
             Vec2 tilePos = grid.gridPosToTilePos(node.getX(), node.getY());
-            targetPos = new Vec2(tilePos.x * game.levelRenderer.drawSize, tilePos.y * game.levelRenderer.drawSize);
-            targetPos = targetPos.add(new Vec2(game.levelRenderer.drawSize / 2f, game.levelRenderer.drawSize / 2f));
+            targetPos = new Vec2(tilePos.x * Level.WORLD_TILE_SIZE, tilePos.y * Level.WORLD_TILE_SIZE);
+            targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
         }
 
         // Calculate the direction to the target position
@@ -88,6 +90,7 @@ public class Goblin {
 
         // Calculate the movement step
         Vec2 step = direction.multiply(MOVE_SPEED);
+        this.deltaMovement = step;
 
         // Move gradually towards the target position
         this.position = this.position.add(step);
@@ -102,18 +105,57 @@ public class Goblin {
             if (!this.currentPath.isEmpty()) {
                 Node nextNode = this.currentPath.get(0);
                 Vec2 tilePos = grid.gridPosToTilePos(nextNode.getX(), nextNode.getY());
-                targetPos = new Vec2(tilePos.x * game.levelRenderer.drawSize, tilePos.y * game.levelRenderer.drawSize);
-                targetPos = targetPos.add(new Vec2(game.levelRenderer.drawSize / 2f, game.levelRenderer.drawSize / 2f));
+                targetPos = new Vec2(tilePos.x * Level.WORLD_TILE_SIZE, tilePos.y * Level.WORLD_TILE_SIZE);
+                targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
             } else {
                 targetPos = null; // Clear target position when path is empty
             }
         }
     }
 
-    public void moveTo(Vec2 moveToPosition) {
-        Node start = grid.getNode(9, 2, 2);
-        Node end = grid.getNode(4, 6, 0);
+    // takes tile positions
+    public void moveToTile(int x, int y) {
+        int[] nodeCoordinates = getNodeCoordinatesAtPosition(this.position);
+        Node start = grid.getNode(nodeCoordinates[0], nodeCoordinates[1], nodeCoordinates[2]);
+        int targetLayer = getLayerFromPosition(new Vec2(
+                x * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE/2f,
+                y * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE/2f
+        ));
+        x -= grid.getxOffset();
+        y -= grid.getyOffset();
+        Node end = grid.getNode(x, y, targetLayer-1);
         List<Node> path = new AStarPathfinding(grid).findPath(start, end);
         this.currentPath = new ArrayList<>(path);
+    }
+
+    public int getLayerFromPosition(Vec2 worldPos) {
+        for (int i = this.level.metadata.layers; i >= 1; i--) {
+            for (Tile tile : this.level.tiles.get(String.valueOf(i))) {
+                if (worldPos.x > tile.x * Level.WORLD_TILE_SIZE
+                        && worldPos.x < tile.x * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE) {
+                    if (worldPos.y > tile.y * Level.WORLD_TILE_SIZE
+                            && worldPos.y < tile.y * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE) {
+                        return i;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int[] getNodeCoordinatesAtPosition(Vec2 worldPos) {
+        for (int i = this.level.metadata.layers; i >= 1; i--) {
+            for (Tile tile : this.level.tiles.get(String.valueOf(i))) {
+                if (worldPos.x >= tile.x * Level.WORLD_TILE_SIZE
+                        && worldPos.x < tile.x * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE) {
+                    if (worldPos.y >= tile.y * Level.WORLD_TILE_SIZE
+                            && worldPos.y < tile.y * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE) {
+                        Vec2 gridPos = grid.tilePosToGridPos(tile.x, tile.y);
+                        return new int[]{(int) gridPos.x, (int) gridPos.y, i-1};
+                    }
+                }
+            }
+        }
+        return new int[]{0, 0, 0};
     }
 }
