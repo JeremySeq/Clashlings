@@ -7,6 +7,7 @@ import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.Grid;
 import main.java.com.jeremyseq.multiplayer_game.pathfinding.Node;
+import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class Goblin {
     public Game game; // on client only
+    public ServerGame serverGame; // on server only
     public long id;
     public Level level;
     public Vec2 position;
@@ -25,6 +27,12 @@ public class Goblin {
     private boolean flipped = false;
     public Vec2 deltaMovement = new Vec2(0, 0);
 
+    private boolean animateHurt = false;
+
+    public static final int HEALTH = 20;
+
+    public int health = HEALTH;
+
     // for use on client
     public Goblin(Game game, Level level, Vec2 position) {
         this.game = game;
@@ -33,7 +41,8 @@ public class Goblin {
     }
 
     // for use on server
-    public Goblin(Level level, Vec2 position) {
+    public Goblin(ServerGame serverGame, Level level, Vec2 position) {
+        this.serverGame = serverGame;
         this.level = level;
         this.position = position;
         this.initializePathfinding();
@@ -55,7 +64,7 @@ public class Goblin {
         }
 
         if (this.deltaMovement.equals(new Vec2(0, 0))) {
-            spriteRenderer.drawAnimation(g, imageObserver, 0, (int) renderPos.x, (int) renderPos.y, flipped);
+            spriteRenderer.drawAnimation(g, imageObserver, 0, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
         } else {
             if (this.deltaMovement.x < 0) {
                 flipped = true;
@@ -63,8 +72,10 @@ public class Goblin {
                 flipped = false;
             }
 
-            spriteRenderer.drawAnimation(g, imageObserver, 1, (int) renderPos.x, (int) renderPos.y, flipped);
+            spriteRenderer.drawAnimation(g, imageObserver, 1, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
         }
+
+        animateHurt = false;
     }
 
     public void initializePathfinding() {
@@ -157,5 +168,24 @@ public class Goblin {
             }
         }
         return new int[]{0, 0, 0};
+    }
+
+    public void hurt(int damage) {
+        // damage the goblin
+        health -= damage;
+
+        // if goblin has no health left
+        if (health <= 0) {
+            // if client side
+            if (game != null) {
+                game.enemies.remove(this.id);
+            }
+            // if server side
+            if (serverGame != null) {
+                serverGame.enemies.remove(this.id);
+            }
+        }
+
+        this.animateHurt = true;
     }
 }

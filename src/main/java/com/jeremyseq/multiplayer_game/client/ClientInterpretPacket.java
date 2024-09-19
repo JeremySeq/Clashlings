@@ -71,6 +71,18 @@ public class ClientInterpretPacket {
             if (enemy != null) {
                 enemy.deltaMovement = pos;
             }
+        } else if (line.startsWith("$enemy_hit:")) {
+            String s = line.substring(11);
+            String id = s.split("\\$")[0];
+            id = id.substring(3);
+            String newHealthStr = s.split("\\$")[1];
+            newHealthStr = newHealthStr.substring(10);
+            int newHealth = Integer.parseInt(newHealthStr);
+            Goblin enemy = game.enemies.get(Long.parseLong(id));
+            if (enemy != null) {
+                int damageDone = enemy.health - newHealth;
+                enemy.hurt(damageDone);
+            }
         } else {
             System.out.println(line);
         }

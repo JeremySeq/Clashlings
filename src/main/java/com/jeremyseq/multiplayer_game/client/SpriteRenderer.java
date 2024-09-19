@@ -11,8 +11,11 @@ import java.util.Objects;
 public class SpriteRenderer {
     private final String imageFile;
     private BufferedImage image;
+    private BufferedImage damage_tinted_image; // TODO: a damage tinted image doesn't need to be made for every sprite
     private int frameCounter = 0;
     private int animationFrame = 0;
+
+    private int hurtTintCounter = -1;
 
     private final int tileWidth;
     private final int tileHeight;
@@ -74,6 +77,8 @@ public class SpriteRenderer {
         if (image == null) {
             try {
                 image = ImageIO.read(Objects.requireNonNull(getClass().getResource(this.imageFile)));
+                damage_tinted_image = ImageIO.read(Objects.requireNonNull(getClass().getResource(this.imageFile)));
+                ImageFilters.tint(damage_tinted_image, new Color(191, 41, 41, 154));
             } catch (IOException exc) {
                 System.out.println("Error opening image file: " + exc.getMessage());
             }
@@ -89,6 +94,10 @@ public class SpriteRenderer {
     }
 
     public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped) {
+        return drawAnimation(g, imageObserver, animation, x, y, flipped, false);
+    }
+
+    public boolean drawAnimation(Graphics g, ImageObserver imageObserver, int animation, int x, int y, boolean flipped, boolean startHurtTint) {
         boolean finished = false;
         loadImage();
 
@@ -98,16 +107,31 @@ public class SpriteRenderer {
             frameCounter = 0;
         }
 
+        if (startHurtTint) {
+            hurtTintCounter = 20;
+        }
+
+        boolean doTint = false;
+
+        if (hurtTintCounter != -1) {
+            doTint = true;
+            hurtTintCounter -= 1;
+            if (hurtTintCounter == 0) {
+                hurtTintCounter = -1;
+            }
+        }
+
+
         if (flipped) {
             g.drawImage(
-                    this.image,
+                    doTint ? this.damage_tinted_image : this.image,
                     x + drawSize/2, y - drawSize/2, x - drawSize/2, y + drawSize/2,
                     animationFrame*tileWidth, animation*tileHeight, animationFrame*tileWidth+tileWidth, animation*tileHeight+tileHeight,
                     imageObserver
             );
         } else {
             g.drawImage(
-                    this.image,
+                    doTint ? this.damage_tinted_image : this.image,
                     x - drawSize/2, y - drawSize/2, x + drawSize/2, y + drawSize/2,
                     animationFrame*tileWidth, animation*tileHeight, animationFrame*tileWidth+tileWidth, animation*tileHeight+tileHeight,
                     imageObserver

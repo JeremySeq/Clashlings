@@ -16,7 +16,7 @@ public class ServerGame {
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
 
     public ServerGame() {
-        enemies.put(0L, new Goblin(level, new Vec2(0, 0)));
+        enemies.put(0L, new Goblin(this, level, new Vec2(0, 0)));
     }
 
     public ServerPlayer getPlayerBySocket(Socket socket) {
@@ -34,7 +34,7 @@ public class ServerGame {
     }
 
     public void connectPlayer(String username, Socket socket) {
-        players.add(new ServerPlayer(socket, username, new Vec2(0, 0)));
+        players.add(new ServerPlayer(this, socket, username, new Vec2(0, 0)));
     }
 
     public boolean isValidUsername(String username) {
