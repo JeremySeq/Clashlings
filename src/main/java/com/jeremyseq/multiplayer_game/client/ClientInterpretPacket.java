@@ -83,6 +83,11 @@ public class ClientInterpretPacket {
                 int damageDone = enemy.health - newHealth;
                 enemy.hurt(damageDone);
             }
+        } else if (line.startsWith("$disconnected:")) {
+            String s = line.substring(14);
+            assert s.startsWith("username=");
+            String username = s.substring(9);
+            game.players.removeIf((clientPlayer -> clientPlayer.username.equals(username)));
         } else {
             System.out.println(line);
         }

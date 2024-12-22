@@ -77,7 +77,10 @@ public class Server
             }
         }
         System.out.println("Closing connection and removing player");
+        String username = serverGame.getPlayerBySocket(socket).username;
         serverGame.removePlayer(socket);
+
+        this.sendToEachPlayer("$disconnected:username=" + username);
 
         // close connection
         socket.close();
@@ -111,6 +114,13 @@ public class Server
                     out.writeUTF("$enemy_movement:id=" + goblin.id + "$" + "movement=" + goblin.deltaMovement.toPacketString());
                 }
             }
+        }
+    }
+
+    public void sendToEachPlayer(String message) throws IOException {
+        for (ServerPlayer player : this.serverGame.players) {
+            DataOutputStream out = new DataOutputStream(player.socket.getOutputStream());
+            out.writeUTF(message);
         }
     }
 
