@@ -3,8 +3,8 @@ package main.java.com.jeremyseq.multiplayer_game.server;
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.S2C.EnemyHitS2CPacket;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -46,10 +46,7 @@ public class ServerPlayer {
                 enemy.hurt(2);  // do damage
 
                 // notify all players about the enemy hit and its updated health
-                for (ServerPlayer otherPlayer : serverGame.players) {
-                    DataOutputStream serverPlayerOut = new DataOutputStream(otherPlayer.socket.getOutputStream());
-                    serverPlayerOut.writeUTF("$enemy_hit:id=" + enemy.id + "$" + "newHealth=" + enemy.health);
-                }
+                serverGame.server.sendToEachPlayer(new EnemyHitS2CPacket(enemy.id, enemy.health));
             }
         }
     }

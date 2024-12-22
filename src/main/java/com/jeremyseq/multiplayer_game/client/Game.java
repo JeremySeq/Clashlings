@@ -1,10 +1,10 @@
 package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.Client;
-import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
+import main.java.com.jeremyseq.multiplayer_game.common.*;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.MovementC2SPacket;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.PositionC2SPacket;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,19 +44,12 @@ public class Game extends JPanel implements ActionListener {
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
-        // get level from server
-        try {
-            String string = client.server_response.readUTF();
-            ClientInterpretPacket.interpretPacket(this, string);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         Thread receiveServerResponses = new Thread(() -> {
             while (true) {
                 try {
-                    ClientInterpretPacket.interpretPacket(this, client.server_response.readUTF());
-                } catch (IOException e) {
+                    Packet packet = (Packet) client.in.readObject();
+                    packet.handle(this);
+                } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -87,10 +80,11 @@ public class Game extends JPanel implements ActionListener {
         // draw our graphics.
         drawBackground(g);
 
+        // send client position to server
         try {
-            client.out.writeUTF("$pos:" + clientPlayer.position.toPacketString());
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+            this.client.sendPacket(new PositionC2SPacket(clientPlayer.position));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         // this smooths out animations on some systems
@@ -157,11 +151,12 @@ public class Game extends JPanel implements ActionListener {
                 } else {
                     this.clientPlayer.position = this.clientPlayer.position.add(dir.normalize().multiply(SPEED));
                 }
-
             }
+
+            // send client delta movement to server
             try {
-                client.out.writeUTF("$movement:" + dir.normalize().multiply(SPEED).toPacketString());
-            } catch (IOException ex) {
+                this.client.sendPacket(new MovementC2SPacket(dir.normalize().multiply(SPEED)));
+            } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }

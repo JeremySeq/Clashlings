@@ -1,6 +1,8 @@
 package main.java.com.jeremyseq.multiplayer_game;
 
 import main.java.com.jeremyseq.multiplayer_game.client.App;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
+import main.java.com.jeremyseq.multiplayer_game.common.Packet;
 
 import java.io.*;
 import java.net.Socket;
@@ -8,9 +10,9 @@ import java.net.Socket;
 public class Client {
     // initialize socket and input output streams
     private Socket socket = null;
+    private ObjectOutputStream out;
+    public ObjectInputStream in;
     private DataInputStream input = null;
-    public DataOutputStream out = null;
-    public DataInputStream server_response = null;
     public String username;
 
     // constructor to put ip address and port
@@ -21,24 +23,21 @@ public class Client {
             socket = new Socket(address, port);
             System.out.println("Connected");
 
-            // takes input from terminal
             input = new DataInputStream(System.in);
-            server_response = new DataInputStream(socket.getInputStream());
 
-            // sends output to the socket
-            out = new DataOutputStream(
-                    socket.getOutputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+            System.out.println("Connected to server");
         }
         catch (IOException i) {
             System.out.println(i);
             return;
         }
 
-
         try {
             System.out.print("Username: ");
             username = input.readLine();
-            out.writeUTF("$init_connection:username=" + username);
+            sendPacket(new ConnectC2SPacket(username));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -47,31 +46,10 @@ public class Client {
             App.runApp(this);
         });
         gameThread.start();
+    }
 
-        // string to read message from input
-        String line = "";
-
-        // keep reading until "Over" is input
-        while (!line.equals("Over")) {
-            try {
-                line = input.readLine();
-
-                out.writeUTF(line);
-            }
-            catch (IOException e) {
-                System.out.println(e);
-            }
-        }
-
-        // close the connection
-        try {
-            input.close();
-            out.close();
-            socket.close();
-        }
-        catch (IOException e) {
-            System.out.println(e);
-        }
+    public void sendPacket(Packet packet) throws IOException {
+        out.writeObject(packet);
     }
 
     public static void main(String[] args) throws IOException {

@@ -2,6 +2,7 @@ package main.java.com.jeremyseq.multiplayer_game.client;
 
 import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
 import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.AttackC2SPacket;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -53,8 +54,9 @@ public class MouseHandler implements MouseListener {
             }
 
             if (attackSide != this.game.clientPlayer.attacking) {
+                // send client attack to server
                 try {
-                    game.client.out.writeUTF("$attack:" + attackSide.name());
+                    game.client.sendPacket(new AttackC2SPacket(attackSide.name()));
                 } catch (IOException exception) {
                     throw new RuntimeException(exception);
                 }

@@ -1,18 +1,21 @@
 package main.java.com.jeremyseq.multiplayer_game;
 
 import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerInterpretPacket;
+import main.java.com.jeremyseq.multiplayer_game.common.Packet;
+import main.java.com.jeremyseq.multiplayer_game.common.packets.S2C.*;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
 import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
 
 import java.net.*;
 import java.io.*;
+import java.util.HashMap;
 
 public class Server
 {
     //initialize socket and input stream
     private ServerSocket server = null;
-    private final ServerGame serverGame = new ServerGame();
+    private final ServerGame serverGame = new ServerGame(this);
+    public HashMap<Socket, ObjectOutputStream> outputStreamHashMap = new HashMap<>();
 
     // constructor with port
     public Server(int port)
@@ -54,40 +57,43 @@ public class Server
     }
 
     public void acceptClient(Socket socket) throws IOException {
-        // takes input from the client socket
-        DataInputStream in = new DataInputStream(
-                new BufferedInputStream(socket.getInputStream()));
-        DataOutputStream out = new DataOutputStream(
-                socket.getOutputStream());
 
-        out.writeUTF("$level:" + this.serverGame.level.toJson());
+        try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
 
-        String line = "";
-        // reads message from client until "Over" is sent
-        while (!line.equals("Over"))
-        {
-            try
-            {
-                line = in.readUTF();
-                ServerInterpretPacket.interpretPacket(socket, this.serverGame, out, line);
+            outputStreamHashMap.put(socket, out);
+
+            sendPacket(out, new SendLevelS2CPacket(this.serverGame.level.toJson()));
+
+            while (true) {
+                Packet packet = (Packet) in.readObject();
+                packet.handle(serverGame, socket);
             }
-            catch(IOException i)
-            {
-                break;
-            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("Received seriously messed up packet.");
+        } catch (SocketException socketException) {
+            System.out.println("Lost connection to client.");
         }
-        System.out.println("Closing connection and removing player");
+
+        System.out.println("Closing connection and removing player.");
         String username = serverGame.getPlayerBySocket(socket).username;
         serverGame.removePlayer(socket);
 
-        this.sendToEachPlayer("$disconnected:username=" + username);
+        this.sendToEachPlayer(new PlayerDisconnectedS2CPacket(username));
 
         // close connection
         socket.close();
-        in.close();
     }
 
-    public void serverTick() throws InterruptedException, IOException {
+    public void sendPacket(ObjectOutputStream out, Packet packet) throws IOException {
+        out.writeObject(packet);
+    }
+
+    public void sendPacket(Socket socket, Packet packet) throws IOException {
+        outputStreamHashMap.get(socket).writeObject(packet);
+    }
+
+    public void serverTick() throws IOException, InterruptedException {
         while (true)
         {
             Thread.sleep(10); // 100 ticks per second
@@ -99,28 +105,31 @@ public class Server
             }
 
             for (ServerPlayer player : this.serverGame.players) {
-                DataOutputStream out = new DataOutputStream(player.socket.getOutputStream());
+                ObjectOutputStream out = outputStreamHashMap.get(player.socket);
 
                 for (ServerPlayer otherPlayer : this.serverGame.players) {
                     if (player == otherPlayer) {
                         continue;
                     }
-                    out.writeUTF("$pos:username=" + otherPlayer.username + "$" + "pos=" + otherPlayer.pos.toPacketString());
-                    out.writeUTF("$movement." + otherPlayer.username + ":" + otherPlayer.deltaMovement.toPacketString());
+
+                    // send other player positions to clients
+                    this.sendPacket(out, new PlayerPositionS2CPacket(otherPlayer.username, otherPlayer.pos));
+                    this.sendPacket(out, new PlayerMovementS2CPacket(otherPlayer.username, otherPlayer.deltaMovement));
                 }
 
                 for (Goblin goblin : this.serverGame.enemies.values()) {
-                    out.writeUTF("$enemy_pos:id=" + goblin.id + "$" + "pos=" + goblin.position.toPacketString());
-                    out.writeUTF("$enemy_movement:id=" + goblin.id + "$" + "movement=" + goblin.deltaMovement.toPacketString());
+                    // send server enemy positions to clients
+                    this.sendPacket(out, new EnemyPositionS2CPacket(goblin.id, goblin.position));
+                    this.sendPacket(out, new EnemyMovementS2CPacket(goblin.id, goblin.deltaMovement));
                 }
             }
         }
     }
 
-    public void sendToEachPlayer(String message) throws IOException {
+    public void sendToEachPlayer(Packet packet) throws IOException {
         for (ServerPlayer player : this.serverGame.players) {
-            DataOutputStream out = new DataOutputStream(player.socket.getOutputStream());
-            out.writeUTF(message);
+            ObjectOutputStream out = outputStreamHashMap.get(player.socket);
+            out.writeObject(packet);
         }
     }
 

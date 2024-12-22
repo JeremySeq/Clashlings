@@ -1,5 +1,6 @@
 package main.java.com.jeremyseq.multiplayer_game.server;
 
+import main.java.com.jeremyseq.multiplayer_game.Server;
 import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
 import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
 import main.java.com.jeremyseq.multiplayer_game.common.level.LevelReader;
@@ -14,8 +15,10 @@ public class ServerGame {
     public Level level = new LevelReader().readLevel("level1");
     public ArrayList<ServerPlayer> players = new ArrayList<>();
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
+    public Server server;
 
-    public ServerGame() {
+    public ServerGame(Server server) {
+        this.server = server;
         enemies.put(0L, new Goblin(this, level, new Vec2(0, 0)));
     }
 
