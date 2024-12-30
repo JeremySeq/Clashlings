@@ -1,8 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.AttackC2SPacket;
+import com.jeremyseq.multiplayer_game.common.AttackState;
+import com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.packets.C2S.AttackC2SPacket;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;

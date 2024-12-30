@@ -1,10 +1,10 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.Client;
-import main.java.com.jeremyseq.multiplayer_game.common.*;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.MovementC2SPacket;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.PositionC2SPacket;
+import com.jeremyseq.multiplayer_game.Client;
+import com.jeremyseq.multiplayer_game.common.*;
+import com.jeremyseq.multiplayer_game.common.level.Level;
+import com.jeremyseq.multiplayer_game.common.packets.C2S.MovementC2SPacket;
+import com.jeremyseq.multiplayer_game.common.packets.C2S.PositionC2SPacket;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,7 +74,7 @@ public class Game extends JPanel implements ActionListener {
         super.paintComponent(g);
         // when calling g.drawImage() we can use "this" for the ImageObserver
         // because Component implements the ImageObserver interface, and JPanel
-        // extends from Component. So "this" main.java.com.seq.chess.Board instance, as a Component, can
+        // extends from Component. So "this" com.seq.chess.Board instance, as a Component, can
         // react to imageUpdate() events triggered by g.drawImage()
 
         // draw our graphics.

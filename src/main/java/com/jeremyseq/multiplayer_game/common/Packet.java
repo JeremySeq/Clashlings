@@ -1,7 +1,7 @@
-package main.java.com.jeremyseq.multiplayer_game.common;
+package com.jeremyseq.multiplayer_game.common;
 
-import main.java.com.jeremyseq.multiplayer_game.client.Game;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
+import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.server.ServerGame;
 
 import java.io.Serial;
 import java.io.Serializable;

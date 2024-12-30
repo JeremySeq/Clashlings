@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.common.level;
+package com.jeremyseq.multiplayer_game.common.level;
 
 public enum BuildingType {
     CASTLE("/TinySwordsPack/Factions/Knights/Buildings/Castle/Castle_Blue.png",

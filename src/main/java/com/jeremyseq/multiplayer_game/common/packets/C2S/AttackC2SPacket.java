@@ -1,11 +1,11 @@
-package main.java.com.jeremyseq.multiplayer_game.common.packets.C2S;
+package com.jeremyseq.multiplayer_game.common.packets.C2S;
 
-import main.java.com.jeremyseq.multiplayer_game.client.Game;
-import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.Packet;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.S2C.AttackS2CPacket;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
+import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.common.AttackState;
+import com.jeremyseq.multiplayer_game.common.Packet;
+import com.jeremyseq.multiplayer_game.common.packets.S2C.AttackS2CPacket;
+import com.jeremyseq.multiplayer_game.server.ServerGame;
+import com.jeremyseq.multiplayer_game.server.ServerPlayer;
 
 import java.io.IOException;
 import java.io.Serial;

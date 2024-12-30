@@ -1,8 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game;
+package com.jeremyseq.multiplayer_game;
 
-import main.java.com.jeremyseq.multiplayer_game.client.App;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
-import main.java.com.jeremyseq.multiplayer_game.common.Packet;
+import com.jeremyseq.multiplayer_game.client.App;
+import com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
+import com.jeremyseq.multiplayer_game.common.Packet;
 
 import java.io.*;
 import java.net.Socket;

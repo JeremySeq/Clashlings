@@ -1,8 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
-import main.java.com.jeremyseq.multiplayer_game.pathfinding.Grid;
-import main.java.com.jeremyseq.multiplayer_game.pathfinding.Node;
+import com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.pathfinding.Grid;
+import com.jeremyseq.multiplayer_game.pathfinding.Node;
 
 import java.awt.*;
 import java.util.List;

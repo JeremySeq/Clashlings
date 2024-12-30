@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.pathfinding;
+package com.jeremyseq.multiplayer_game.pathfinding;
 
 import java.util.*;
 import java.util.List;

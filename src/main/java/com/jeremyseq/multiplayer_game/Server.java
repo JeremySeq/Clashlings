@@ -1,10 +1,10 @@
-package main.java.com.jeremyseq.multiplayer_game;
+package com.jeremyseq.multiplayer_game;
 
-import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
-import main.java.com.jeremyseq.multiplayer_game.common.Packet;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.S2C.*;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerPlayer;
+import com.jeremyseq.multiplayer_game.common.Goblin;
+import com.jeremyseq.multiplayer_game.common.Packet;
+import com.jeremyseq.multiplayer_game.common.packets.S2C.*;
+import com.jeremyseq.multiplayer_game.server.ServerGame;
+import com.jeremyseq.multiplayer_game.server.ServerPlayer;
 
 import java.net.*;
 import java.io.*;

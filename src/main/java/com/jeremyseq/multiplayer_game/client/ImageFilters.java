@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

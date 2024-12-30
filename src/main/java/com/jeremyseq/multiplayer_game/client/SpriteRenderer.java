@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

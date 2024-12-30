@@ -1,9 +1,9 @@
-package main.java.com.jeremyseq.multiplayer_game.pathfinding;
+package com.jeremyseq.multiplayer_game.pathfinding;
 
 
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
+import com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.level.Level;
+import com.jeremyseq.multiplayer_game.common.level.Tile;
 
 import java.util.ArrayList;
 

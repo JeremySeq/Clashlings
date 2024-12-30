@@ -1,6 +1,6 @@
-package main.java.com.jeremyseq.multiplayer_game.common.level;
+package com.jeremyseq.multiplayer_game.common.level;
 
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 public class LevelMetadata {
     public int layers;

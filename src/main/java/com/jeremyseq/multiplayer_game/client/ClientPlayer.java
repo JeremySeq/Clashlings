@@ -1,9 +1,9 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Building;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.AttackState;
+import com.jeremyseq.multiplayer_game.common.level.Building;
+import com.jeremyseq.multiplayer_game.common.level.Tile;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;

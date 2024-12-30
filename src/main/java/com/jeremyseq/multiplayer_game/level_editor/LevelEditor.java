@@ -1,8 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game.level_editor;
+package com.jeremyseq.multiplayer_game.level_editor;
 
-import main.java.com.jeremyseq.multiplayer_game.client.Game;
-import main.java.com.jeremyseq.multiplayer_game.common.level.*;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.common.level.*;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -155,7 +155,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         // when calling g.drawImage() we can use "this" for the ImageObserver
         // because Component implements the ImageObserver interface, and JPanel
-        // extends from Component. So "this" main.java.com.seq.chess.Board instance, as a Component, can
+        // extends from Component. So "this" com.seq.chess.Board instance, as a Component, can
         // react to imageUpdate() events triggered by g.drawImage()
 
         // draw our graphics.

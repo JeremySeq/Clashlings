@@ -1,6 +1,6 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.Client;
+import com.jeremyseq.multiplayer_game.Client;
 
 import javax.swing.*;
 

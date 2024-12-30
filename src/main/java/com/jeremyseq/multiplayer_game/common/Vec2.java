@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.common;
+package com.jeremyseq.multiplayer_game.common;
 
 import java.util.Objects;
 

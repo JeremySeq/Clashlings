@@ -5,6 +5,7 @@ out/
 /out/
 /.idea/
 MultiplayerGame.iml
+target/
 
 ### Eclipse ###
 .apt_generated

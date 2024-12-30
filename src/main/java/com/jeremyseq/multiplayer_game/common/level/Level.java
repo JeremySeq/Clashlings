@@ -1,9 +1,9 @@
-package main.java.com.jeremyseq.multiplayer_game.common.level;
+package com.jeremyseq.multiplayer_game.common.level;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import main.java.com.jeremyseq.multiplayer_game.client.LevelRenderer;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.client.LevelRenderer;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.util.ArrayList;
 import java.util.HashMap;

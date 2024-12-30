@@ -1,9 +1,9 @@
-package main.java.com.jeremyseq.multiplayer_game.server;
+package com.jeremyseq.multiplayer_game.server;
 
-import main.java.com.jeremyseq.multiplayer_game.common.AttackState;
-import main.java.com.jeremyseq.multiplayer_game.common.Goblin;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
-import main.java.com.jeremyseq.multiplayer_game.common.packets.S2C.EnemyHitS2CPacket;
+import com.jeremyseq.multiplayer_game.common.AttackState;
+import com.jeremyseq.multiplayer_game.common.Goblin;
+import com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.packets.S2C.EnemyHitS2CPacket;
 
 import java.io.IOException;
 import java.net.Socket;

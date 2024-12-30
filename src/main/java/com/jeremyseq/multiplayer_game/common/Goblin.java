@@ -1,13 +1,13 @@
-package main.java.com.jeremyseq.multiplayer_game.common;
+package com.jeremyseq.multiplayer_game.common;
 
-import main.java.com.jeremyseq.multiplayer_game.client.Game;
-import main.java.com.jeremyseq.multiplayer_game.client.SpriteRenderer;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Level;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
-import main.java.com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
-import main.java.com.jeremyseq.multiplayer_game.pathfinding.Grid;
-import main.java.com.jeremyseq.multiplayer_game.pathfinding.Node;
-import main.java.com.jeremyseq.multiplayer_game.server.ServerGame;
+import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.client.SpriteRenderer;
+import com.jeremyseq.multiplayer_game.common.level.Level;
+import com.jeremyseq.multiplayer_game.common.level.Tile;
+import com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
+import com.jeremyseq.multiplayer_game.pathfinding.Grid;
+import com.jeremyseq.multiplayer_game.pathfinding.Node;
+import com.jeremyseq.multiplayer_game.server.ServerGame;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;

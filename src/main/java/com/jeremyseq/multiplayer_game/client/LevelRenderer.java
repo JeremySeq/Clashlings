@@ -1,10 +1,10 @@
-package main.java.com.jeremyseq.multiplayer_game.client;
+package com.jeremyseq.multiplayer_game.client;
 
-import main.java.com.jeremyseq.multiplayer_game.common.level.Building;
-import main.java.com.jeremyseq.multiplayer_game.common.level.BuildingState;
-import main.java.com.jeremyseq.multiplayer_game.common.level.BuildingType;
-import main.java.com.jeremyseq.multiplayer_game.common.level.Tile;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.level.Building;
+import com.jeremyseq.multiplayer_game.common.level.BuildingState;
+import com.jeremyseq.multiplayer_game.common.level.BuildingType;
+import com.jeremyseq.multiplayer_game.common.level.Tile;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

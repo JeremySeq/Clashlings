@@ -1,8 +1,8 @@
-package main.java.com.jeremyseq.multiplayer_game.common.level;
+package com.jeremyseq.multiplayer_game.common.level;
 
 
 import com.google.gson.Gson;
-import main.java.com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.io.BufferedReader;
 import java.io.IOException;

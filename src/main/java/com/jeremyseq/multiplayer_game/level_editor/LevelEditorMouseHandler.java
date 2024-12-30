@@ -1,4 +1,4 @@
-package main.java.com.jeremyseq.multiplayer_game.level_editor;
+package com.jeremyseq.multiplayer_game.level_editor;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
