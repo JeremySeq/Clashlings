@@ -40,7 +40,9 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
 
     public Vec2 camPos = new Vec2(0, 0);
 
-    public Level level = new LevelReader().readLevel("level1");
+    public static final String LEVEL_TO_EDIT = "level1";
+
+    public Level level = new LevelReader().readLevel(LEVEL_TO_EDIT);
     public String layer = String.valueOf(this.level.metadata.layers);
 
     private Timer timer;
@@ -341,7 +343,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         if (e.getKeyChar() == 't') {
             System.out.println("Saving");
             try {
-                FileWriter writer = new FileWriter("src/main/resources/levels/level1.json");
+                FileWriter writer = new FileWriter("src/main/resources/levels/" + LEVEL_TO_EDIT + ".json");
                 writer.write(level.toJson());
                 writer.flush();
                 writer.close();
