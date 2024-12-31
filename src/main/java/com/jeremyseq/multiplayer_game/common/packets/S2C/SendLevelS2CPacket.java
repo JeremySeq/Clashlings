@@ -26,5 +26,6 @@ public class SendLevelS2CPacket extends Packet {
     @Override
     public void handle(Game game) {
         game.level = new LevelReader().readLevelString(level);
+        game.levelRenderer.setLevel(game.level);
     }
 }

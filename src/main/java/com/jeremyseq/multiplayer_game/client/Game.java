@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-public class Game extends JPanel implements ActionListener {
+public class Game extends JPanel implements ActionListener, Camera {
 
     public static final int WIDTH = 832;
     public static final int HEIGHT = 832;
@@ -104,6 +104,16 @@ public class Game extends JPanel implements ActionListener {
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
         }
+    }
+
+    @Override
+    public int getDisplayWidth() {
+        return WIDTH;
+    }
+
+    @Override
+    public int getDisplayHeight() {
+        return HEIGHT;
     }
 
     public Vec2 getRenderPositionFromWorldPosition(Vec2 vec2) {

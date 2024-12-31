@@ -1,40 +1,28 @@
 package com.jeremyseq.multiplayer_game.level_editor;
 
-import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.client.Camera;
+import com.jeremyseq.multiplayer_game.client.LevelRenderer;
 import com.jeremyseq.multiplayer_game.common.level.*;
 import com.jeremyseq.multiplayer_game.common.Vec2;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 
-public class LevelEditor extends JPanel implements ActionListener, KeyListener {
+public class LevelEditor extends JPanel implements ActionListener, KeyListener, Camera {
 
     public static final int WIDTH = 900;
     public static final int HEIGHT = 900;
 
     public final int DELAY = 20;
-    public HashMap<String, BufferedImage> tilemaps = new HashMap<>();
-    public HashMap<BuildingType, BufferedImage> buildings = new HashMap<>();
-    public HashMap<BuildingType, BufferedImage> contruction_buildings = new HashMap<>();
-    public HashMap<BuildingType, BufferedImage> destroyed_buildings = new HashMap<>();
 
-    int drawSize = 64;
-    int tileSize = 64;
     public String tilemap = "flat";
     public int tilemapI = 0;
     public int tilemapJ = 0;
-
-    private int frameCounter = 0; // counts frames
-    private int animationFrame = 0; // frame that the animations are on
 
     public LevelEditorMouseHandler mouseHandler = new LevelEditorMouseHandler(this);
 
@@ -43,6 +31,8 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public static final String LEVEL_TO_EDIT = "level1";
 
     public Level level = new LevelReader().readLevel(LEVEL_TO_EDIT);
+    public LevelRenderer levelRenderer = new LevelRenderer(this.level, this);
+
     public String layer = String.valueOf(this.level.metadata.layers);
 
     private Timer timer;
@@ -53,7 +43,6 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     private boolean moveRight = false;
 
     public LevelEditor() {
-        this.loadImages();
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
         // this timer will call the actionPerformed() method every DELAY ms
@@ -87,19 +76,17 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
 
     public void mousePressed(MouseEvent e) {
         Vec2 mousePos = new Vec2(getMousePosition().x, getMousePosition().y);
-        for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
-            for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
-                if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
-                    Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
-                    if (dPressed) {
-                        System.out.println("Deleting");
-                        level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
-                    } else {
-                        level.tiles.computeIfAbsent(layer, k -> new ArrayList<>());
-                        level.tiles.get(layer).add(new Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
-                    }
-                }
-            }
+        Vec2 worldPos = this.getWorldPositionFromRenderPosition(mousePos);
+
+        // convert world position to tile position
+        Vec2 tilePos = getTilePositionFromWorldPosition(worldPos);
+
+        if (dPressed) {
+            System.out.println("Deleting");
+            level.tiles.get(layer).removeIf(tile -> tile.x == (int) tilePos.x && tile.y == (int) tilePos.y);
+        } else {
+            level.tiles.computeIfAbsent(layer, k -> new ArrayList<>());
+            level.tiles.get(layer).add(new Tile((int) tilePos.x, (int) tilePos.y, tilemap, tilemapI, tilemapJ));
         }
     }
 
@@ -127,28 +114,6 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
         System.out.println(layer);
     }
 
-    public void loadImages() {
-        try {
-            tilemaps.put("flat", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Flat.png"))));
-            tilemaps.put("elevation", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Ground/Tilemap_Elevation.png"))));
-            tilemaps.put("water", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Water.png"))));
-            tilemaps.put("foam", ImageIO.read(Objects.requireNonNull(getClass().getResource("/TinySwordsPack/Terrain/Water/Foam/Foam.png"))));
-
-            for (BuildingType buildingType : BuildingType.values()) {
-                buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.imageFileName))));
-            }
-            for (BuildingType buildingType : BuildingType.values()) {
-                contruction_buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.constructionImageFileName))));
-            }
-            for (BuildingType buildingType : BuildingType.values()) {
-                destroyed_buildings.put(buildingType, ImageIO.read(Objects.requireNonNull(getClass().getResource(buildingType.destroyedImageFileName))));
-            }
-
-        } catch (IOException exc) {
-            System.out.println("Error opening image file: " + exc.getMessage());
-        }
-    }
-
     @Override
     public void paintComponent(Graphics g) {
 
@@ -167,156 +132,60 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     }
 
     private void drawBackground(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+
+        levelRenderer.drawTillLayer(g, this, layer);
+
         draw(g, this);
     }
 
     public void draw(Graphics g, ImageObserver imageObserver) {
-        frameCounter++;
-        if (frameCounter >= 3) {
-            animationFrame++;
-            frameCounter = 0;
-            if (animationFrame >= 8) {
-                animationFrame = 0;
-            }
-        }
-
-
-        Vec2 mousePos = null;
         if (this.getMousePosition() != null) {
-            mousePos = new Vec2(this.getMousePosition().x, this.getMousePosition().y);
+            Vec2 mousePos = new Vec2(getMousePosition().x, getMousePosition().y);
+            Vec2 worldPos = this.getWorldPositionFromRenderPosition(mousePos);
+            Vec2 tilePos = getTilePositionFromWorldPosition(worldPos);
+            Vec2 startPos = new Vec2(tilePos.x * this.levelRenderer.drawSize, tilePos.y * this.levelRenderer.drawSize);
+            startPos = this.getRenderPositionFromWorldPosition(startPos);
+            g.drawRect((int) startPos.x, (int) startPos.y, this.levelRenderer.drawSize, this.levelRenderer.drawSize);
+            g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
+            g.drawString("Pos: " + (int) tilePos.x + ", " + (int) tilePos.y, 5, HEIGHT-20);
         }
 
-        // draw water background
-        for (int i = 0; i < Game.WIDTH/drawSize + 1; i++) {
-            for (int j = 0; j < Game.HEIGHT/drawSize + 1; j++) {
-                drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
-            }
-        }
-
-        int numberOfLayers = level.metadata.layers;
-        for (int i = 1; i <= numberOfLayers*2 - 1; i++) {
-            String l;
-            if (i % 2 == 1) {
-                l = String.valueOf(i - (i - 1) / 2);
-            } else {
-                String prev = String.valueOf((i - 1) - (i - 2) / 2);
-                String next = String.valueOf((i + 1) - (i) / 2);
-                l = prev + "-" + next;
-            }
-            if (level.tiles.get(l) == null) {
-                continue;
-            }
-            // draw foam around outline of layer 1
-            if (i == 1) {
-                ArrayList<Tile> outlineLayerTiles = level.getOuterTilesInLayer(l);
-                for (Tile tile : outlineLayerTiles) {
-                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 1);
-
-                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 0);
-                    drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 2+3*animationFrame, 1);
-                    drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
-                    drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
-                }
-            }
-
-            for (Tile tile : level.tiles.get(l)) {
-                drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
-            }
-
-            ArrayList<Building> buildingList = level.buildings.get(l);
-            if (buildingList != null && !buildingList.isEmpty()) {
-                for (Building building : buildingList) {
-                    drawBuilding(g, imageObserver, building);
-                }
-            }
-
-            if (l.equals(layer)) {
-                break;
-            }
-        }
-
-        for (int i = 0; i < Game.WIDTH/drawSize + drawSize; i++) {
-            for (int j = 0; j < Game.HEIGHT/drawSize + drawSize; j++) {
-                if (mousePos != null) {
-                    if (mousePos.x > i*drawSize && mousePos.x < i*drawSize + drawSize && mousePos.y > j*drawSize && mousePos.y < j*drawSize + drawSize) {
-                        g.drawRect(i*drawSize+1, j*drawSize+1, drawSize, drawSize);
-                        Vec2 tilePos = new Vec2(i, j).subtract(new Vec2(7, 7).subtract(camPos)); // I don't know why its 7 it just is
-                        g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
-                        g.drawString("Pos: " + (int) tilePos.x + ", " + (int) tilePos.y, 5, HEIGHT-20);
-                    }
-                }
-            }
-        }
-
-        drawTile(g, imageObserver, 0, 0, tilemaps.get(this.tilemap), tilemapI, tilemapJ, true);
+        this.levelRenderer.drawTile(g, imageObserver, 0, 0,
+                this.levelRenderer.tilemaps.get(this.tilemap), tilemapI, tilemapJ, true);
         g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
         Rectangle2D bounds = g.getFont().getStringBounds(layer, g.getFontMetrics().getFontRenderContext());
-        g.drawString("Layer: " + layer, drawSize + 10, (int) (bounds.getHeight()+2));
+        g.drawString("Layer: " + layer, this.levelRenderer.drawSize + 10, (int) (bounds.getHeight()+2));
     }
 
-    public void drawBuilding(Graphics g, ImageObserver imageObserver, Building building) {
-        Vec2 renderPos = new Vec2(building.x*drawSize, building.y*drawSize);
-        renderPos = this.getRenderPositionFromWorldPosition(renderPos);
-        int x2 = (int) renderPos.x;
-        int y2 = (int) renderPos.y;
-        BufferedImage image;
-        if (building.state == BuildingState.BUILT) {
-            image = buildings.get(building.type);
-        } else if (building.state == BuildingState.CONSTRUCTION) {
-            image = contruction_buildings.get(building.type);
-        } else {
-            image = destroyed_buildings.get(building.type);
-        }
-        g.drawImage(
-                image,
-                x2, y2, drawSize*building.type.tileWidth, drawSize*building.type.tileHeight,
-                imageObserver
-        );
+    @Override
+    public int getDisplayWidth() {
+        return WIDTH;
     }
 
-    /**
-     * @param x x-coordinate to draw on screen
-     * @param y y-coordinate to draw on screen
-     * @param tilemap tilemap buffered image
-     * @param i tile on tilemap to draw
-     * @param j tile on tilemap to draw
-     */
-    public void drawTile(Graphics g, ImageObserver imageObserver, int x, int y, BufferedImage tilemap, int i, int j) {
-        drawTile(g, imageObserver, x, y, tilemap, i, j, false);
+    @Override
+    public int getDisplayHeight() {
+        return HEIGHT;
     }
 
-    /**
-     * @param x x-coordinate to draw on screen
-     * @param y y-coordinate to draw on screen
-     * @param tilemap tilemap buffered image
-     * @param i tile on tilemap to draw
-     * @param j tile on tilemap to draw
-     * @param ignoreScrolling if this is true, renders the tile without converting to world position, meaning
-     *                        if the player moves, this tile stays in the same spot on their screen
-     */
-    public void drawTile(Graphics g, ImageObserver imageObserver, int x, int y, BufferedImage tilemap, int i, int j, boolean ignoreScrolling) {
-        Vec2 renderPos = new Vec2(x, y);
-        if (!ignoreScrolling) {
-            renderPos = getRenderPositionFromWorldPosition(renderPos);
-        }
-        int x2 = (int) renderPos.x;
-        int y2 = (int) renderPos.y;
-        g.drawImage(
-                tilemap,
-                x2, y2, x2 + drawSize, y2 + drawSize,
-                tileSize*i, tileSize*j, tileSize*i + tileSize, tileSize*j + tileSize,
-                imageObserver
-        );
+    public Vec2 getTilePositionFromWorldPosition(Vec2 worldPos) {
+        // convert world position to tile position
+        Vec2 tilePos = new Vec2(worldPos.x / this.levelRenderer.drawSize, worldPos.y / this.levelRenderer.drawSize);
+        // if coordinates are negative we want to floor not truncate, meaning -7.3 -> -8
+        tilePos.x = tilePos.x < 0 ? (float) Math.floor(tilePos.x) : tilePos.x;
+        tilePos.y = tilePos.y < 0 ? (float) Math.floor(tilePos.y) : tilePos.y;
+        return new Vec2((int) tilePos.x, (int) tilePos.y);
     }
 
     public Vec2 getRenderPositionFromWorldPosition(Vec2 vec2) {
         vec2 = vec2.add(new Vec2(WIDTH/2f, HEIGHT/2f));
-        vec2 = vec2.subtract(camPos.multiply(drawSize));
+        vec2 = vec2.subtract(camPos);
         return vec2;
     }
 
     public Vec2 getWorldPositionFromRenderPosition(Vec2 vec2) {
-        vec2 = vec2.add(camPos.multiply(drawSize));
+        vec2 = vec2.add(camPos);
         vec2 = vec2.subtract(new Vec2(WIDTH/2f, HEIGHT/2f));
         return vec2;
     }
@@ -325,13 +194,13 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener {
     public void actionPerformed(ActionEvent e) {
 
         if (moveUp) {
-            camPos = camPos.add(new Vec2(0, -1));
+            camPos = camPos.add(new Vec2(0, -20));
         } else if (moveDown) {
-            camPos = camPos.add(new Vec2(0, 1));
+            camPos = camPos.add(new Vec2(0, 20));
         } else if (moveLeft) {
-            camPos = camPos.add(new Vec2(-1, 0));
+            camPos = camPos.add(new Vec2(-20, 0));
         } else if (moveRight) {
-            camPos = camPos.add(new Vec2(1, 0));
+            camPos = camPos.add(new Vec2(20, 0));
         }
 
         repaint();
