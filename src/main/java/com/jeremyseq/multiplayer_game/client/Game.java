@@ -72,10 +72,6 @@ public class Game extends JPanel implements ActionListener, Camera {
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-        // when calling g.drawImage() we can use "this" for the ImageObserver
-        // because Component implements the ImageObserver interface, and JPanel
-        // extends from Component. So "this" com.seq.chess.Board instance, as a Component, can
-        // react to imageUpdate() events triggered by g.drawImage()
 
         // draw our graphics.
         drawBackground(g);
@@ -132,8 +128,6 @@ public class Game extends JPanel implements ActionListener, Camera {
     public void actionPerformed(ActionEvent e) {
 
         // this method is called by the timer every DELAY ms.
-        // use this space to update the state of your game or animation
-        // before the graphics are redrawn.
 
         if (this.clientPlayer.attacking == AttackState.FALSE) {
             Vec2 dir = new Vec2(0, 0);
