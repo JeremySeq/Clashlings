@@ -14,7 +14,7 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Goblin {
+public class Goblin implements Hitbox {
     public Game game; // on client only
     public ServerGame serverGame; // on server only
     public long id;
@@ -74,6 +74,10 @@ public class Goblin {
 
             spriteRenderer.drawAnimation(g, imageObserver, 1, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
         }
+
+        // draw hitbox
+//        DebugRenderer.drawBox(this.game, g, (int) (this.position.x - this.getHitboxSize().x/2), (int) (this.position.y - this.getHitboxSize().y/2),
+//                (int) (this.position.x + this.getHitboxSize().x/2), (int) (this.position.y + this.getHitboxSize().y/2));
 
         animateHurt = false;
     }
@@ -187,5 +191,10 @@ public class Goblin {
         }
 
         this.animateHurt = true;
+    }
+
+    @Override
+    public Vec2 getHitboxSize() {
+        return new Vec2(30, 30);
     }
 }

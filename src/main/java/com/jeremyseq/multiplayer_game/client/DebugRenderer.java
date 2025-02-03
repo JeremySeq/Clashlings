@@ -63,4 +63,13 @@ public class DebugRenderer {
         }
     }
 
+    /**
+     * Draws a box given world coordinates
+     */
+    public static void drawBox(Game game, Graphics g, int x, int y, int x2, int y2) {
+        g.setColor(Color.WHITE);
+        Vec2 drawStart = game.getRenderPositionFromWorldPosition(new Vec2(x, y));
+        Vec2 drawEnd = game.getRenderPositionFromWorldPosition(new Vec2(x2, y2));
+        g.drawRect((int) drawStart.x, (int) drawStart.y, (int) (drawEnd.x - drawStart.x), (int) (drawEnd.y - drawStart.y));
+    }
 }

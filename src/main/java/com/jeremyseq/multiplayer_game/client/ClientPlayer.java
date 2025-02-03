@@ -1,6 +1,7 @@
 package com.jeremyseq.multiplayer_game.client;
 
 import com.jeremyseq.multiplayer_game.common.AttackState;
+import com.jeremyseq.multiplayer_game.common.Hitbox;
 import com.jeremyseq.multiplayer_game.common.level.Building;
 import com.jeremyseq.multiplayer_game.common.level.Tile;
 import com.jeremyseq.multiplayer_game.common.Vec2;
@@ -10,7 +11,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
-public class ClientPlayer {
+public class ClientPlayer implements Hitbox {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
             "/TinySwordsPack/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png",
             8, 6, 192, 144);
@@ -23,6 +24,8 @@ public class ClientPlayer {
 
     public int currentLayer = 1;
     private boolean onStairs = false;
+
+    // walk hitbox: used for collisions with level, walls, etc
     private final int walkHitboxWidth = 40;
     private final int walkHitboxHeight = 20;
     private final int walkHitboxHeightOffset = 20;
@@ -84,8 +87,13 @@ public class ClientPlayer {
             attacking = AttackState.FALSE;
         }
 
-        // Draw hitbox
+        // Draw walk hitbox
 //        g.drawRect((int) (renderPos.x-walkHitboxWidth/2), (int) (renderPos.y-walkHitboxHeight/2 + walkHitboxHeightOffset), walkHitboxWidth, walkHitboxHeight);
+
+        // draw fight hitbox
+//        DebugRenderer.drawBox(this.game, g, (int) (this.position.x - this.getHitboxSize().x/2), (int) (this.position.y - this.getHitboxSize().y/2),
+//                (int) (this.position.x + this.getHitboxSize().x/2), (int) (this.position.y + this.getHitboxSize().y/2));
+
 
         // draw name
         g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
@@ -202,4 +210,12 @@ public class ClientPlayer {
                 tile.y*tileDrawSize + tileDrawSize > playerPos.y-height/2f+walkHitboxHeightOffset;
     }
 
+
+    /**
+     * There is also a copy of this in `ServerPlayer`. Don't ask why.
+     */
+    @Override
+    public Vec2 getHitboxSize() {
+        return new Vec2(40, 40);
+    }
 }
