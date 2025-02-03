@@ -16,6 +16,9 @@ public class ServerPlayer implements Hitbox {
     public Vec2 pos;
     public Vec2 deltaMovement = new Vec2(0, 0);
 
+    private int attackTick = -1;
+    private AttackState currentAttackState = null;
+
     public ServerPlayer(ServerGame serverGame, Socket socket, String username, Vec2 pos) {
         this.serverGame = serverGame;
         this.socket = socket;
@@ -23,9 +26,23 @@ public class ServerPlayer implements Hitbox {
         this.pos = pos;
     }
 
+    public void beginAttack(AttackState attackState) {
+        attackTick = 0;
+        currentAttackState = attackState;
+    }
 
+    public void tick() {
+        if (attackTick != -1) {
+            attackTick++;
+            final int ticksToAttack = 20; // number of server ticks to wait after beginning attack anim to actually attack
+            if (attackTick >= ticksToAttack) {
+                attackTick = -1;
+                this.attack(currentAttackState);
+            }
+        }
+    }
 
-    public void attack(AttackState attackState) throws IOException {
+    public void attack(AttackState attackState) {
         final int attackRange = 30;  // how far the attack reaches
         final int attackWidth = 20;  // width of the slash area
         final int enemyHitboxPadding = 10;  // extra margin around enemy hitbox
@@ -80,7 +97,11 @@ public class ServerPlayer implements Hitbox {
                 enemy.hurt(2);
 
                 // notify all players about the enemy hit and its updated health
-                serverGame.server.sendToEachPlayer(new EnemyHitS2CPacket(enemy.id, enemy.health));
+                try {
+                    serverGame.server.sendToEachPlayer(new EnemyHitS2CPacket(enemy.id, enemy.health));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

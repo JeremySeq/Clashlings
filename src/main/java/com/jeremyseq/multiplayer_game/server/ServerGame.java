@@ -22,6 +22,12 @@ public class ServerGame {
         enemies.put(0L, new Goblin(this, level, new Vec2(0, 0)));
     }
 
+    public void tick() {
+        for (ServerPlayer player : players) {
+            player.tick();
+        }
+    }
+
     public ServerPlayer getPlayerBySocket(Socket socket) {
         for (ServerPlayer player : players) {
             if (player.socket.equals(socket)) {

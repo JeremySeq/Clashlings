@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.io.Serial;
 import java.net.Socket;
 
-public class AttackC2SPacket extends Packet {
+public class BeginAttackC2SPacket extends Packet {
     @Serial
     private static final long serialVersionUID = 1L;
 
     private final String attackSide;
 
-    public AttackC2SPacket(String attackSide) {
+    public BeginAttackC2SPacket(String attackSide) {
         this.attackSide = attackSide;
     }
 
@@ -25,11 +25,7 @@ public class AttackC2SPacket extends Packet {
     public void handle(ServerGame serverGame, Socket socket) {
         ServerPlayer player = serverGame.getPlayerBySocket(socket);
         AttackState attackState = AttackState.valueOf(this.attackSide);
-        try {
-            player.attack(attackState);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        player.beginAttack(attackState);
 
         for (ServerPlayer otherPlayer : serverGame.players) {
             if (player == otherPlayer) {

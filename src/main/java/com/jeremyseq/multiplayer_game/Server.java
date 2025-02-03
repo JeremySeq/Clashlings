@@ -98,6 +98,8 @@ public class Server
         {
             Thread.sleep(10); // 100 ticks per second
 
+            this.serverGame.tick();
+
             if (!this.serverGame.players.isEmpty()) {
                 for (Goblin goblin : this.serverGame.enemies.values()) {
                     goblin.tick();
