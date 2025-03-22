@@ -1,5 +1,6 @@
 package com.jeremyseq.multiplayer_game.client;
 
+import com.jeremyseq.multiplayer_game.client.sound.SoundPlayer;
 import com.jeremyseq.multiplayer_game.common.AttackState;
 import com.jeremyseq.multiplayer_game.common.Hitbox;
 import com.jeremyseq.multiplayer_game.common.level.Building;
@@ -29,6 +30,8 @@ public class ClientPlayer implements Hitbox {
     private final int walkHitboxWidth = 40;
     private final int walkHitboxHeight = 20;
     private final int walkHitboxHeightOffset = 20;
+
+    int walkingSoundTick = 0;
 
     public ClientPlayer(Game game, String username, Vec2 position) {
         this.game = game;
@@ -87,6 +90,14 @@ public class ClientPlayer implements Hitbox {
             attacking = AttackState.FALSE;
         }
 
+        if (animation == 1) {
+            walkingSoundTick++;
+            if (walkingSoundTick >= 15) {
+                SoundPlayer.playSound(SoundPlayer.Sounds.PLAYER_FOOTSTEP, .89f);
+                walkingSoundTick = 0;
+            }
+        }
+
         // Draw walk hitbox
 //        g.drawRect((int) (renderPos.x-walkHitboxWidth/2), (int) (renderPos.y-walkHitboxHeight/2 + walkHitboxHeightOffset), walkHitboxWidth, walkHitboxHeight);
 
@@ -102,6 +113,9 @@ public class ClientPlayer implements Hitbox {
     }
 
     public void attack(AttackState attackSide) {
+
+        SoundPlayer.playSound(SoundPlayer.Sounds.PLAYER_ATTACK);
+
         this.deltaMovement = new Vec2(0, 0);
         attacking = attackSide;
     }

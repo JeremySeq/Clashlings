@@ -2,6 +2,7 @@ package com.jeremyseq.multiplayer_game.common;
 
 import com.jeremyseq.multiplayer_game.client.Game;
 import com.jeremyseq.multiplayer_game.client.SpriteRenderer;
+import com.jeremyseq.multiplayer_game.client.sound.SoundPlayer;
 import com.jeremyseq.multiplayer_game.common.level.Level;
 import com.jeremyseq.multiplayer_game.common.level.Tile;
 import com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
@@ -183,10 +184,15 @@ public class Goblin implements Hitbox {
             // if client side
             if (game != null) {
                 game.enemies.remove(this.id);
+                SoundPlayer.playSound(SoundPlayer.Sounds.ENEMY_DEATH);
             }
             // if server side
             if (serverGame != null) {
                 serverGame.enemies.remove(this.id);
+            }
+        } else {
+            if (game != null) {
+                SoundPlayer.playSound(SoundPlayer.Sounds.ENEMY_HURT);
             }
         }
 
