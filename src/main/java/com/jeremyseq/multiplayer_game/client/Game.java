@@ -30,8 +30,6 @@ public class Game extends JPanel implements ActionListener, Camera {
     public KeyHandler keyHandler = new KeyHandler();
     public MouseHandler mouseHandler = new MouseHandler(this);
     public LevelRenderer levelRenderer = new LevelRenderer(this);
-
-    public Goblin enemy;
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
 
     private Timer timer;
@@ -39,7 +37,7 @@ public class Game extends JPanel implements ActionListener, Camera {
     public Game(Client client) {
         this.client = client;
 
-        this.clientPlayer = new ClientPlayer(this, client.username, new Vec2(0, 300));
+        this.clientPlayer = new ClientPlayer(this, client.username, new Vec2(0, 0));
         this.players.add(clientPlayer);
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -55,8 +53,6 @@ public class Game extends JPanel implements ActionListener, Camera {
             }
         });
         receiveServerResponses.start();
-
-        this.enemy = new Goblin(this, this.level, new Vec2(100, 300));
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);

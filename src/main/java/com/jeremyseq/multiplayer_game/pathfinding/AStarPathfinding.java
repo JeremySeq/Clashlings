@@ -6,15 +6,32 @@ import java.util.List;
 public class AStarPathfinding {
     private final Grid grid;
 
+    // Priority queue to store open nodes, sorted by their fCost
+    private final PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparingDouble(Node::getFCost));
+
+    private final Set<Node> closedList = new HashSet<>();
+
     public AStarPathfinding(Grid grid) {
         this.grid = grid;
     }
 
+    /**
+     * resets all node's parents in preparation for more pathfinding
+     */
+    public void resetGrid() {
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                for (int z = 0; z < grid.getLayers(); z++) {
+                    grid.getNode(x, y, z).setParent(null);
+                }
+            }
+        }
+    }
+
     public List<Node> findPath(Node start, Node end) {
-        // Priority queue to store open nodes, sorted by their fCost
-        PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparingDouble(Node::getFCost));
-        // Set to store closed nodes
-        Set<Node> closedList = new HashSet<>();
+        this.resetGrid();
+        openList.clear();
+        closedList.clear();
 
         // Initialize start node costs and add to open list
         start.setGCost(0);

@@ -90,26 +90,26 @@ public class Level {
         return combinedList;
     }
 
-    public ArrayList<Tile> findTilesAtPosition(LevelRenderer levelRenderer, Vec2 pos) {
+    public ArrayList<Tile> findTilesAtPosition(Vec2 pos) {
         ArrayList<Tile> tileList = Level.combineTileLists(tiles);
         ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
 
         for (Tile tile : tileList) {
-            if (isPosInTile(tile, (int) pos.x, (int) pos.y, levelRenderer.drawSize)) {
+            if (isPosInTile(tile, (int) pos.x, (int) pos.y, LevelRenderer.DRAW_SIZE)) {
                 tilesWithPlayer.add(tile);
             }
         }
         return tilesWithPlayer;
     }
 
-    public ArrayList<Tile> findTilesAtPositionInLayer(LevelRenderer levelRenderer, Vec2 pos, String layer) {
+    public ArrayList<Tile> findTilesAtPositionInLayer(Vec2 pos, String layer) {
         ArrayList<Tile> tileList = tiles.get(layer);
         ArrayList<Tile> tilesWithPlayer = new ArrayList<>();
         if (tileList == null) {
             return null;
         }
         for (Tile tile : tileList) {
-            if (isPosInTile(tile, (int) pos.x, (int) pos.y, levelRenderer.drawSize)) {
+            if (isPosInTile(tile, (int) pos.x, (int) pos.y, LevelRenderer.DRAW_SIZE)) {
                 tilesWithPlayer.add(tile);
             }
         }
@@ -119,5 +119,19 @@ public class Level {
     public boolean isPosInTile(Tile tile, int posX, int posY, int tileSize) {
         return tile.x*tileSize <= posX && posX < tile.x*tileSize + tileSize &&
                 tile.y*tileSize <= posY && posY < tile.y*tileSize + tileSize;
+    }
+
+
+    public Vec2 getTilePositionFromWorldPosition(Vec2 worldPos, int tileSize) {
+        // convert world position to tile position
+        Vec2 tilePos = new Vec2(worldPos.x / tileSize, worldPos.y / tileSize);
+        // if coordinates are negative we want to floor not truncate, meaning -7.3 -> -8
+        tilePos.x = tilePos.x < 0 ? (float) Math.floor(tilePos.x) : tilePos.x;
+        tilePos.y = tilePos.y < 0 ? (float) Math.floor(tilePos.y) : tilePos.y;
+        return new Vec2((int) tilePos.x, (int) tilePos.y);
+    }
+
+    public Vec2 getWorldPositionFromTilePosition(Vec2 tilePos, int tileSize) {
+        return new Vec2(tilePos.x * tileSize, tilePos.y * tileSize);
     }
 }

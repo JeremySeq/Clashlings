@@ -2,8 +2,8 @@
   "metadata": {
     "layers": 3,
     "spawn": {
-      "x": 0.0,
-      "y": 0.0
+      "x": 0,
+      "y": 5
     }
   },
   "tiles": {

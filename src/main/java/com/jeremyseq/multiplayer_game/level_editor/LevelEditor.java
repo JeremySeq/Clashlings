@@ -141,9 +141,9 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener, 
             Vec2 mousePos = new Vec2(getMousePosition().x, getMousePosition().y);
             Vec2 worldPos = this.getWorldPositionFromRenderPosition(mousePos);
             Vec2 tilePos = getTilePositionFromWorldPosition(worldPos);
-            Vec2 startPos = new Vec2(tilePos.x * this.levelRenderer.drawSize, tilePos.y * this.levelRenderer.drawSize);
+            Vec2 startPos = new Vec2(tilePos.x * this.levelRenderer.DRAW_SIZE, tilePos.y * this.levelRenderer.DRAW_SIZE);
             startPos = this.getRenderPositionFromWorldPosition(startPos);
-            g.drawRect((int) startPos.x, (int) startPos.y, this.levelRenderer.drawSize, this.levelRenderer.drawSize);
+            g.drawRect((int) startPos.x, (int) startPos.y, this.levelRenderer.DRAW_SIZE, this.levelRenderer.DRAW_SIZE);
             g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
             g.drawString("Pos: " + (int) tilePos.x + ", " + (int) tilePos.y, 5, HEIGHT-20);
         }
@@ -152,7 +152,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener, 
                 this.levelRenderer.tilemaps.get(this.tilemap), tilemapI, tilemapJ, true);
         g.setFont(new Font("Jetbrains Mono", Font.BOLD, 22));
         Rectangle2D bounds = g.getFont().getStringBounds(layer, g.getFontMetrics().getFontRenderContext());
-        g.drawString("Layer: " + layer, this.levelRenderer.drawSize + 10, (int) (bounds.getHeight()+2));
+        g.drawString("Layer: " + layer, this.levelRenderer.DRAW_SIZE + 10, (int) (bounds.getHeight()+2));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener, 
 
     public Vec2 getTilePositionFromWorldPosition(Vec2 worldPos) {
         // convert world position to tile position
-        Vec2 tilePos = new Vec2(worldPos.x / this.levelRenderer.drawSize, worldPos.y / this.levelRenderer.drawSize);
+        Vec2 tilePos = new Vec2(worldPos.x / this.levelRenderer.DRAW_SIZE, worldPos.y / this.levelRenderer.DRAW_SIZE);
         // if coordinates are negative we want to floor not truncate, meaning -7.3 -> -8
         tilePos.x = tilePos.x < 0 ? (float) Math.floor(tilePos.x) : tilePos.x;
         tilePos.y = tilePos.y < 0 ? (float) Math.floor(tilePos.y) : tilePos.y;

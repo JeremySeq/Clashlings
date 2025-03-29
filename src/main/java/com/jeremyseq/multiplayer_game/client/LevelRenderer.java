@@ -21,7 +21,7 @@ public class LevelRenderer {
     public HashMap<BuildingType, BufferedImage> contruction_buildings = new HashMap<>();
     public HashMap<BuildingType, BufferedImage> destroyed_buildings = new HashMap<>();
 
-    public int drawSize = 48;
+    public static final int DRAW_SIZE = 48;
     public int tileSize = 64;
     private int frameCounter = 0; // counts frames
     private int animationFrame = 0; // frame that the animations are on
@@ -80,9 +80,9 @@ public class LevelRenderer {
             }
         }
 
-        for (int i = 0; i < camera.getDisplayWidth()/drawSize + 1; i++) {
-            for (int j = 0; j < camera.getDisplayHeight()/drawSize + 1; j++) {
-                drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
+        for (int i = 0; i < camera.getDisplayWidth()/ DRAW_SIZE + 1; i++) {
+            for (int j = 0; j < camera.getDisplayHeight()/ DRAW_SIZE + 1; j++) {
+                drawTile(g, imageObserver, i* DRAW_SIZE, j* DRAW_SIZE, tilemaps.get("water"), 0, 0, true);
             }
         }
 
@@ -118,9 +118,9 @@ public class LevelRenderer {
             }
         }
 
-        for (int i = 0; i < camera.getDisplayWidth()/drawSize + 1; i++) {
-            for (int j = 0; j < camera.getDisplayHeight()/drawSize + 1; j++) {
-                drawTile(g, imageObserver, i*drawSize, j*drawSize, tilemaps.get("water"), 0, 0, true);
+        for (int i = 0; i < camera.getDisplayWidth()/ DRAW_SIZE + 1; i++) {
+            for (int j = 0; j < camera.getDisplayHeight()/ DRAW_SIZE + 1; j++) {
+                drawTile(g, imageObserver, i* DRAW_SIZE, j* DRAW_SIZE, tilemaps.get("water"), 0, 0, true);
             }
         }
 
@@ -152,7 +152,7 @@ public class LevelRenderer {
         }
 
         for (Tile tile : tileList) {
-            drawTile(g, imageObserver, tile.x * drawSize, tile.y * drawSize, tilemaps.get(tile.tilemap), tile.i, tile.j);
+            drawTile(g, imageObserver, tile.x * DRAW_SIZE, tile.y * DRAW_SIZE, tilemaps.get(tile.tilemap), tile.i, tile.j);
         }
 
         ArrayList<Building> buildingList = this.level.buildings.get(layer);
@@ -195,17 +195,17 @@ public class LevelRenderer {
     public void drawFoam(Graphics g, ImageObserver imageObserver) {
         ArrayList<Tile> outlineLayerTiles = this.level.getOuterTilesInLayer("1");
         for (Tile tile : outlineLayerTiles) {
-            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 1);
+            drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("foam"), 1+3*animationFrame, 1);
 
-            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 0);
-            drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 2+3*animationFrame, 1);
-            drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("foam"), 1+3*animationFrame, 2);
-            drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("foam"), 3*animationFrame, 1);
+            drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y-1)* DRAW_SIZE, tilemaps.get("foam"), 1+3*animationFrame, 0);
+            drawTile(g, imageObserver, (tile.x+1)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("foam"), 2+3*animationFrame, 1);
+            drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y+1)* DRAW_SIZE, tilemaps.get("foam"), 1+3*animationFrame, 2);
+            drawTile(g, imageObserver, (tile.x-1)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("foam"), 3*animationFrame, 1);
         }
     }
 
     public void drawBuilding(Graphics g, ImageObserver imageObserver, Building building) {
-        Vec2 renderPos = new Vec2(building.x*drawSize, building.y*drawSize);
+        Vec2 renderPos = new Vec2(building.x* DRAW_SIZE, building.y* DRAW_SIZE);
         renderPos = this.camera.getRenderPositionFromWorldPosition(renderPos);
         int x2 = (int) renderPos.x;
         int y2 = (int) renderPos.y;
@@ -219,7 +219,7 @@ public class LevelRenderer {
         }
         g.drawImage(
                 image,
-                x2, y2, drawSize*building.type.tileWidth, drawSize*building.type.tileHeight,
+                x2, y2, DRAW_SIZE *building.type.tileWidth, DRAW_SIZE *building.type.tileHeight,
                 imageObserver
         );
     }
@@ -230,12 +230,12 @@ public class LevelRenderer {
     public void drawShadowUnderElevationForLayer(Graphics g, ImageObserver imageObserver, String layer) {
         for (Tile tile : this.level.tiles.get(layer)) {
             if (tile.tilemap.equals("elevation") && !(tile.j == 0 || tile.j == 4)) {
-                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 1, 1);
+                drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("shadows"), 1, 1);
 
-                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y-1)*drawSize, tilemaps.get("shadows"), 1, 0);
-                drawTile(g, imageObserver, (tile.x+1)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 2, 1);
-                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y+1)*drawSize, tilemaps.get("shadows"), 1, 2);
-                drawTile(g, imageObserver, (tile.x-1)*drawSize, (tile.y)*drawSize, tilemaps.get("shadows"), 0, 1);
+                drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y-1)* DRAW_SIZE, tilemaps.get("shadows"), 1, 0);
+                drawTile(g, imageObserver, (tile.x+1)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("shadows"), 2, 1);
+                drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y+1)* DRAW_SIZE, tilemaps.get("shadows"), 1, 2);
+                drawTile(g, imageObserver, (tile.x-1)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("shadows"), 0, 1);
             }
         }
     }
@@ -248,7 +248,7 @@ public class LevelRenderer {
     public void drawParticlesOnElevation(Graphics g, ImageObserver imageObserver, String elevationLayer, boolean isSand) {
         for (Tile tile : this.level.tiles.get(elevationLayer)) {
             if (tile.tilemap.equals("elevation") && (tile.j == 3 || tile.j == 5 || tile.j == 7)) {
-                drawTile(g, imageObserver, (tile.x)*drawSize, (tile.y)*drawSize, tilemaps.get("flat"), isSand ? 9 : 4, 0);
+                drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("flat"), isSand ? 9 : 4, 0);
             }
         }
     }
@@ -282,7 +282,7 @@ public class LevelRenderer {
         int y2 = (int) renderPos.y;
         g.drawImage(
                 tilemap,
-                x2, y2, x2 + drawSize, y2 + drawSize,
+                x2, y2, x2 + DRAW_SIZE, y2 + DRAW_SIZE,
                 tileSize*i, tileSize*j, tileSize*i + tileSize, tileSize*j + tileSize,
                 imageObserver
         );

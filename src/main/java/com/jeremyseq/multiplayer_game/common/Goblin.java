@@ -1,6 +1,7 @@
 package com.jeremyseq.multiplayer_game.common;
 
 import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.client.LevelRenderer;
 import com.jeremyseq.multiplayer_game.client.SpriteRenderer;
 import com.jeremyseq.multiplayer_game.client.sound.SoundPlayer;
 import com.jeremyseq.multiplayer_game.common.level.Level;
@@ -9,6 +10,7 @@ import com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
 import com.jeremyseq.multiplayer_game.pathfinding.Grid;
 import com.jeremyseq.multiplayer_game.pathfinding.Node;
 import com.jeremyseq.multiplayer_game.server.ServerGame;
+import com.jeremyseq.multiplayer_game.server.ServerPlayer;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
@@ -28,11 +30,17 @@ public class Goblin implements Hitbox {
     private boolean flipped = false;
     public Vec2 deltaMovement = new Vec2(0, 0);
 
+    private ServerPlayer closestPlayer = null;
+
+    private Vec2 playerTargetPos = null;
+
     private boolean animateHurt = false;
 
     public static final int HEALTH = 20;
 
     public int health = HEALTH;
+
+    private AStarPathfinding pathfinder = null;
 
     // for use on client
     public Goblin(Game game, Level level, Vec2 position) {
@@ -47,7 +55,6 @@ public class Goblin implements Hitbox {
         this.level = level;
         this.position = position;
         this.initializePathfinding();
-        this.moveToTile(0, 5);
     }
 
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -85,9 +92,13 @@ public class Goblin implements Hitbox {
 
     public void initializePathfinding() {
         this.grid = Grid.levelToGrid(level);
+        this.pathfinder = new AStarPathfinding(grid);
     }
 
-    public void tick() {
+    /**
+     * Per-tick method to follow the path specified in currentPath.
+     */
+    public void followPath() {
         if (this.currentPath.isEmpty()) {
             this.deltaMovement = new Vec2(0, 0);
             return;
@@ -97,8 +108,21 @@ public class Goblin implements Hitbox {
             // Initialize target position
             Node node = this.currentPath.get(0);
             Vec2 tilePos = grid.gridPosToTilePos(node.getX(), node.getY());
-            targetPos = new Vec2(tilePos.x * Level.WORLD_TILE_SIZE, tilePos.y * Level.WORLD_TILE_SIZE);
+            if (this.game != null) {
+                targetPos = this.game.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
+            } else if (this.serverGame != null) {
+                targetPos = this.serverGame.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
+            }
             targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
+        }
+
+//        System.out.println("nodes left in path: " + currentPath.size());
+
+        if (targetPos != null && targetPos.equals(this.position)) {
+            this.currentPath.remove(0);
+            targetPos = null;
+            followPath();
+            return;
         }
 
         // Calculate the direction to the target position
@@ -129,8 +153,71 @@ public class Goblin implements Hitbox {
         }
     }
 
-    // takes tile positions
-    public void moveToTile(int x, int y) {
+    /**
+     * Per-tick method to follow the nearest player
+     * @return true if follow player is complete (i.e. goblin is adjacent to player)
+     */
+    private boolean followPlayerGoal() {
+        if (!this.serverGame.players.isEmpty()) {
+
+            // update this.closestPlayer
+            ServerPlayer newClosestPlayer = null;
+            Double closestDist = null;
+            for (ServerPlayer player : this.serverGame.players) {
+                if (newClosestPlayer == null || player.pos.distance(newClosestPlayer.pos) < closestDist) {
+                    newClosestPlayer = player;
+                    closestDist = player.pos.distance(newClosestPlayer.pos);
+                }
+            }
+            this.closestPlayer = newClosestPlayer;
+
+            // get the tile position of the closest player
+            Vec2 tilePos = this.level.getTilePositionFromWorldPosition(this.closestPlayer.pos, LevelRenderer.DRAW_SIZE);
+
+            // if the goblin is one tile away from the player, stop following and return true
+            Vec2 goblinTP = this.level.getTilePositionFromWorldPosition(this.position, LevelRenderer.DRAW_SIZE);
+            if (goblinTP.distance(tilePos) <= 1) {
+                // player is within attack distance, clear path
+                this.currentPath.clear();
+                return true;
+            }
+
+            // if the new target tile is different from the previous target tile, recalculate the path
+            if (tilePos != playerTargetPos) {
+                setPathToTile((int) tilePos.x, (int) tilePos.y);
+
+                playerTargetPos = tilePos;
+            }
+        }
+
+        return false;
+    }
+
+    public void tick() {
+        // sets the path to follow the player
+        boolean followPlayerResult = followPlayerGoal();
+
+        // if goblin is next to player, attack
+        if (followPlayerResult) {
+            // TODO: Attack player
+            System.out.println("Next to " + closestPlayer.username + ", attacking!");
+            attackPlayerGoal();
+        }
+
+        // follows the set path
+        followPath();
+    }
+
+
+    private void attackPlayerGoal() {
+
+    }
+
+    /**
+     * Calculates the path to the given tile and updates currentPath.
+     * This is an expensive operation and should be used sparingly
+     */
+    public void setPathToTile(int x, int y) {
         int[] nodeCoordinates = getNodeCoordinatesAtPosition(this.position);
         Node start = grid.getNode(nodeCoordinates[0], nodeCoordinates[1], nodeCoordinates[2]);
         int targetLayer = getLayerFromPosition(new Vec2(
@@ -140,7 +227,7 @@ public class Goblin implements Hitbox {
         x -= grid.getxOffset();
         y -= grid.getyOffset();
         Node end = grid.getNode(x, y, targetLayer-1);
-        List<Node> path = new AStarPathfinding(grid).findPath(start, end);
+        List<Node> path = pathfinder.findPath(start, end);
         this.currentPath = new ArrayList<>(path);
     }
 

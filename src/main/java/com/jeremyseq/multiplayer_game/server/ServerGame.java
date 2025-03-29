@@ -1,6 +1,7 @@
 package com.jeremyseq.multiplayer_game.server;
 
 import com.jeremyseq.multiplayer_game.Server;
+import com.jeremyseq.multiplayer_game.client.LevelRenderer;
 import com.jeremyseq.multiplayer_game.common.Goblin;
 import com.jeremyseq.multiplayer_game.common.level.Level;
 import com.jeremyseq.multiplayer_game.common.level.LevelReader;
@@ -43,7 +44,9 @@ public class ServerGame {
     }
 
     public void connectPlayer(String username, Socket socket) {
-        players.add(new ServerPlayer(this, socket, username, new Vec2(0, 0)));
+        // add player with spawn position specified by level
+        players.add(new ServerPlayer(this, socket, username,
+                this.level.getWorldPositionFromTilePosition(level.metadata.spawn, LevelRenderer.DRAW_SIZE)));
     }
 
     public boolean isValidUsername(String username) {

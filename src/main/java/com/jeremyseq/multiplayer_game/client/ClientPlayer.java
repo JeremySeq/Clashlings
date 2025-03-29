@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ClientPlayer implements Hitbox {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -126,9 +127,9 @@ public class ClientPlayer implements Hitbox {
 
             // get tiles at the players position (on sublayers below and above the current layer) to check if they are stairs
             ArrayList<Tile> tilesAtPosition = new ArrayList<>();
-            ArrayList<Tile> tilesAtPositionAbove = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+            ArrayList<Tile> tilesAtPositionAbove = this.game.level.findTilesAtPositionInLayer(
                     this.position.add(new Vec2(0, walkHitboxHeightOffset)), this.currentLayer + "-" + (this.currentLayer + 1));
-            ArrayList<Tile> tilesAtPositionBelow = this.game.level.findTilesAtPositionInLayer(this.game.levelRenderer,
+            ArrayList<Tile> tilesAtPositionBelow = this.game.level.findTilesAtPositionInLayer(
                     this.position.add(new Vec2(0, walkHitboxHeightOffset)), (this.currentLayer-1) + "-" + this.currentLayer);
             if (tilesAtPositionAbove != null) {
                 tilesAtPosition.addAll(tilesAtPositionAbove);
@@ -143,7 +144,7 @@ public class ClientPlayer implements Hitbox {
             } else if (onStairs) {
                 // if we move to a position that has a tile from the layer above, we set onStairs to false and we increase currentLayer
                 if (this.currentLayer + 1 <= numberOfLayers && !this.game.level.findTilesAtPositionInLayer(
-                        game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                        this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer + 1)).isEmpty()) {
                     // we are on the layer above
                     System.out.println("You went up to layer " + (this.currentLayer + 1));
@@ -152,14 +153,13 @@ public class ClientPlayer implements Hitbox {
                 }
                 // this would happen if we moved from the current layer to the stairs and then back to the current layer
                 else if (!this.game.level.findTilesAtPositionInLayer(
-                        game.levelRenderer, this.position.add(new Vec2(0, walkHitboxHeightOffset)),
+                        this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer)).isEmpty()) {
                     this.onStairs = false;
                     System.out.println("You had a moment of indecision");
                 }
                 // if we move to a position that has a tile from the layer below, we set onStairs to false and we decrease currentLayer
                 else if (this.currentLayer - 1 > 0 && !this.game.level.findTilesAtPositionInLayer(
-                        game.levelRenderer,
                         this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer - 1)).isEmpty()) {
                     // we are on the layer below
@@ -194,7 +194,7 @@ public class ClientPlayer implements Hitbox {
 
 
     public void handleTileCollision(Tile tile) {
-        int tileSize = this.game.levelRenderer.drawSize;
+        int tileSize = LevelRenderer.DRAW_SIZE;
         if (isColliding(tile, this.position)) {
             if (position.y - walkHitboxHeight/2f + walkHitboxHeightOffset < tile.y*tileSize) { // if top of the hitbox is above the top of the tile
                 position.y = tile.y*tileSize - walkHitboxHeight/2f - walkHitboxHeightOffset; // moves the bottom of hitbox to top of tile
@@ -215,7 +215,7 @@ public class ClientPlayer implements Hitbox {
         if (tile.tilemap.equals("elevation") && tile.j == 7) {
             return false;
         }
-        int tileDrawSize = this.game.levelRenderer.drawSize;
+        int tileDrawSize = LevelRenderer.DRAW_SIZE;
         int width = walkHitboxWidth;
         int height = walkHitboxHeight;
         return tile.x*tileDrawSize < playerPos.x+width/2f &&
