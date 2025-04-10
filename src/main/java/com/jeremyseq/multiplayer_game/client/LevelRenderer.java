@@ -70,7 +70,7 @@ public class LevelRenderer {
      * Since this is (at least so far) exclusively used in the Level Editor, shadows are not drawn
      * because when you're editing with shadows things can look weird
      */
-    public void drawTillLayer(Graphics g, ImageObserver imageObserver, String stopLayer) {
+    public void drawTileLayer(Graphics g, ImageObserver imageObserver, String stopLayer) {
         frameCounter++;
         if (frameCounter >= 3) {
             animationFrame++;

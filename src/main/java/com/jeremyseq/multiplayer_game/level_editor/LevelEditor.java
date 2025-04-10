@@ -131,7 +131,7 @@ public class LevelEditor extends JPanel implements ActionListener, KeyListener, 
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        levelRenderer.drawTillLayer(g, this, layer);
+        levelRenderer.drawTileLayer(g, this, layer);
 
         draw(g, this);
     }
