@@ -3,10 +3,16 @@ package com.jeremyseq.multiplayer_game.common;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public record Logger(String identifier) {
+public class Logger {
 
-    public static final boolean DEBUG_MODE = true;
-    public static final boolean INCLUDE_THREAD_NAME = false;
+    public final String identifier;
+
+    public boolean DEBUG_MODE = false;
+    public boolean INCLUDE_THREAD_NAME = false;
+
+    public Logger(String identifier) {
+        this.identifier = identifier;
+    }
 
     public void warning(String message) {
         System.err.println(this.create("WARNING", message));

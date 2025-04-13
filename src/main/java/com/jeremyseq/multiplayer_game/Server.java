@@ -1,5 +1,6 @@
 package com.jeremyseq.multiplayer_game;
 
+import com.jeremyseq.multiplayer_game.common.Constants;
 import com.jeremyseq.multiplayer_game.common.Goblin;
 import com.jeremyseq.multiplayer_game.common.Packet;
 import com.jeremyseq.multiplayer_game.common.packets.S2C.*;
@@ -24,7 +25,7 @@ public class Server
         try
         {
             server = new ServerSocket(port);
-            ServerGame.LOGGER.info("Server started");
+            ServerGame.LOGGER.info("Server started on port " + port);
 
             Thread serverTickThread = new Thread(() -> {
                 try {
@@ -72,12 +73,12 @@ public class Server
         } catch (ClassNotFoundException e) {
             ServerGame.LOGGER.warning("Received seriously messed up packet.");
         } catch (SocketException socketException) {
-            ServerGame.LOGGER.info("Lost connection to client.");
+            ServerGame.LOGGER.debug("Lost connection to client.");
         }
 
-        ServerGame.LOGGER.info("Closing connection and removing player.");
         String username = serverGame.getPlayerBySocket(socket).username;
         serverGame.removePlayer(socket);
+        ServerGame.LOGGER.info(username + " left the game");
 
         this.sendToEachPlayer(new PlayerDisconnectedS2CPacket(username));
 
@@ -137,6 +138,26 @@ public class Server
 
     public static void main(String[] args)
     {
-        Server server = new Server(5000);
+        int port = Constants.DEFAULT_PORT;
+
+        for (String arg : args) {
+            if (arg.equals("--debug")) {
+                ServerGame.LOGGER.DEBUG_MODE = true;
+            } else if (arg.startsWith("--port=")) {
+                try {
+                    int parsedPort = Integer.parseInt(arg.substring("--port=".length()));
+                    if (parsedPort < 0 || parsedPort > 65535) {
+                        ServerGame.LOGGER.warning("Invalid port. Using default: " + port);
+                        continue;
+                    }
+                    port = parsedPort;
+                } catch (NumberFormatException e) {
+                    ServerGame.LOGGER.warning("Invalid port. Using default: " + port);
+                }
+            }
+        }
+
+        Server server = new Server(port);
     }
+
 }

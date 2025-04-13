@@ -2,12 +2,12 @@ package com.jeremyseq.multiplayer_game;
 
 import com.jeremyseq.multiplayer_game.client.App;
 import com.jeremyseq.multiplayer_game.client.Game;
+import com.jeremyseq.multiplayer_game.common.Constants;
 import com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
 import com.jeremyseq.multiplayer_game.common.Packet;
 
 import java.io.*;
-import java.net.ConnectException;
-import java.net.Socket;
+import java.net.*;
 
 public class Client {
     // initialize socket and input output streams
@@ -22,7 +22,9 @@ public class Client {
     {
         // establish a connection
         try {
-            socket = new Socket(address, port);
+            SocketAddress socketAddress = new InetSocketAddress(address, port);
+            socket = new Socket();
+            socket.connect(socketAddress, 3000); // three second connection timeout
 
             input = new DataInputStream(System.in);
 
@@ -30,13 +32,16 @@ public class Client {
             in = new ObjectInputStream(socket.getInputStream());
             Game.LOGGER.info("Connected to server");
         }
+        catch (SocketTimeoutException e) {
+            Game.LOGGER.error("Connection timed out: " + e.getMessage());
+            return;
+        }
         catch (ConnectException e) {
-            Game.LOGGER.error(String.valueOf(e));
-            Game.LOGGER.error("Couldn't connect to server. Closing.");
+            Game.LOGGER.error("Couldn't connect to server: " + e.getMessage());
             return;
         }
         catch (IOException i) {
-            Game.LOGGER.error(String.valueOf(i));
+            Game.LOGGER.error("I/O error: " + i.getMessage());
             return;
         }
 
@@ -59,19 +64,30 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
-        // Enter data using BufferReader
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(System.in));
-        // Reading data using readLine
-        String ip;
-        if (args.length > 0 && args[0] != null) {
-            ip = args[0];
-        } else {
+        String ip = null;
+        int port = Constants.DEFAULT_PORT;
+
+        for (String arg : args) {
+            if (arg.startsWith("--ip=")) {
+                ip = arg.substring("--ip=".length());
+            } else if (arg.equals("--debug")) {
+                Game.LOGGER.DEBUG_MODE = true;
+            }
+        }
+
+        if (ip == null) {
             System.out.print("IP Address: ");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             ip = reader.readLine();
         }
-//        System.out.print("Port: ");
-//        String port = reader.readLine();
-        Client client = new Client(ip, 5000);
+
+        if (ip.contains(":")) {
+            String[] parts = ip.split(":", 2);
+            ip = parts[0];
+            port = Integer.parseInt(parts[1]);
+        }
+
+        Client client = new Client(ip, port);
     }
+
 }

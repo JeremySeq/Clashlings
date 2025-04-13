@@ -200,7 +200,7 @@ public class Goblin implements Hitbox {
         // if goblin is next to player, attack
         if (followPlayerResult) {
             // TODO: Attack player
-            Game.LOGGER.debug("Next to " + closestPlayer.username + ", attacking!");
+            ServerGame.LOGGER.debug("Next to " + closestPlayer.username + ", attacking!");
             attackPlayerGoal();
         }
 
