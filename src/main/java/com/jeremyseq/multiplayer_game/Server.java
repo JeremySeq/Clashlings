@@ -24,7 +24,7 @@ public class Server
         try
         {
             server = new ServerSocket(port);
-            System.out.println("Server started");
+            ServerGame.LOGGER.info("Server started");
 
             Thread serverTickThread = new Thread(() -> {
                 try {
@@ -37,7 +37,7 @@ public class Server
 
             while (true) {
                 Socket socket = server.accept();
-                System.out.println("Client accepted");
+                ServerGame.LOGGER.info("Client accepted");
 
                 Thread clientListener = new Thread(() -> {
                     try {
@@ -70,12 +70,12 @@ public class Server
                 packet.handle(serverGame, socket);
             }
         } catch (ClassNotFoundException e) {
-            System.out.println("Received seriously messed up packet.");
+            ServerGame.LOGGER.warning("Received seriously messed up packet.");
         } catch (SocketException socketException) {
-            System.out.println("Lost connection to client.");
+            ServerGame.LOGGER.info("Lost connection to client.");
         }
 
-        System.out.println("Closing connection and removing player.");
+        ServerGame.LOGGER.info("Closing connection and removing player.");
         String username = serverGame.getPlayerBySocket(socket).username;
         serverGame.removePlayer(socket);
 

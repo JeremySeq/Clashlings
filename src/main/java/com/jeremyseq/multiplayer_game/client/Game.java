@@ -22,7 +22,7 @@ public class Game extends JPanel implements ActionListener, Camera {
     public final int DELAY = 20;
     public final Client client;
 
-    public final Logger LOGGER = new Logger("Client");
+    public static final Logger LOGGER = new Logger("Client");
 
     public ClientPlayer clientPlayer;
     public Level level;

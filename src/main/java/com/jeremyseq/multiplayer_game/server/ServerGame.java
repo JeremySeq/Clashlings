@@ -19,7 +19,7 @@ public class ServerGame {
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
     public Server server;
 
-    public final Logger LOGGER = new Logger("Server");
+    public static final Logger LOGGER = new Logger("Server");
 
     public ServerGame(Server server) {
         this.server = server;

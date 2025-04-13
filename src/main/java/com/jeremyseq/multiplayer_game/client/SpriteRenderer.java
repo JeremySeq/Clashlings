@@ -80,7 +80,7 @@ public class SpriteRenderer {
                 damage_tinted_image = ImageIO.read(Objects.requireNonNull(getClass().getResource(this.imageFile)));
                 ImageFilters.tint(damage_tinted_image, new Color(191, 41, 41, 154));
             } catch (IOException exc) {
-                System.out.println("Error opening image file: " + exc.getMessage());
+                Game.LOGGER.warning("Error opening image file: " + exc.getMessage());
             }
         }
     }

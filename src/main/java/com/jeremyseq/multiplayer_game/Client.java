@@ -1,6 +1,7 @@
 package com.jeremyseq.multiplayer_game;
 
 import com.jeremyseq.multiplayer_game.client.App;
+import com.jeremyseq.multiplayer_game.client.Game;
 import com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
 import com.jeremyseq.multiplayer_game.common.Packet;
 
@@ -21,13 +22,13 @@ public class Client {
         // establish a connection
         try {
             socket = new Socket(address, port);
-            System.out.println("Connected");
+            Game.LOGGER.info("Connected");
 
             input = new DataInputStream(System.in);
 
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            System.out.println("Connected to server");
+            Game.LOGGER.info("Connected to server");
         }
         catch (IOException i) {
             System.out.println(i);

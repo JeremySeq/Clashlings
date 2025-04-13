@@ -61,7 +61,7 @@ public class LevelRenderer {
             }
 
         } catch (IOException exc) {
-            System.out.println("Error opening image file: " + exc.getMessage());
+            Game.LOGGER.warning("Error opening image file: " + exc.getMessage());
         }
     }
 

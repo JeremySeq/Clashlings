@@ -11,7 +11,6 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ClientPlayer implements Hitbox {
     public final SpriteRenderer spriteRenderer = new SpriteRenderer(
@@ -147,7 +146,7 @@ public class ClientPlayer implements Hitbox {
                         this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer + 1)).isEmpty()) {
                     // we are on the layer above
-                    System.out.println("You went up to layer " + (this.currentLayer + 1));
+                    Game.LOGGER.info("You went up to layer " + (this.currentLayer + 1));
                     this.onStairs = false;
                     this.currentLayer = currentLayer + 1;
                 }
@@ -156,14 +155,14 @@ public class ClientPlayer implements Hitbox {
                         this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer)).isEmpty()) {
                     this.onStairs = false;
-                    System.out.println("You had a moment of indecision");
+                    Game.LOGGER.info("You had a moment of indecision");
                 }
                 // if we move to a position that has a tile from the layer below, we set onStairs to false and we decrease currentLayer
                 else if (this.currentLayer - 1 > 0 && !this.game.level.findTilesAtPositionInLayer(
                         this.position.add(new Vec2(0, walkHitboxHeightOffset)),
                         String.valueOf(this.currentLayer - 1)).isEmpty()) {
                     // we are on the layer below
-                    System.out.println("You went down to layer " + (this.currentLayer - 1));
+                    Game.LOGGER.info("You went down to layer " + (this.currentLayer - 1));
                     this.onStairs = false;
                     this.currentLayer = currentLayer - 1;
                 }
