@@ -3,6 +3,7 @@ package com.jeremyseq.multiplayer_game.server;
 import com.jeremyseq.multiplayer_game.Server;
 import com.jeremyseq.multiplayer_game.client.LevelRenderer;
 import com.jeremyseq.multiplayer_game.common.Goblin;
+import com.jeremyseq.multiplayer_game.common.Logger;
 import com.jeremyseq.multiplayer_game.common.level.Level;
 import com.jeremyseq.multiplayer_game.common.level.LevelReader;
 import com.jeremyseq.multiplayer_game.common.Vec2;
@@ -17,6 +18,8 @@ public class ServerGame {
     public ArrayList<ServerPlayer> players = new ArrayList<>();
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
     public Server server;
+
+    public final Logger LOGGER = new Logger("Server");
 
     public ServerGame(Server server) {
         this.server = server;
