@@ -6,6 +6,7 @@ import com.jeremyseq.multiplayer_game.common.packets.C2S.ConnectC2SPacket;
 import com.jeremyseq.multiplayer_game.common.Packet;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
 
 public class Client {
@@ -22,7 +23,6 @@ public class Client {
         // establish a connection
         try {
             socket = new Socket(address, port);
-            Game.LOGGER.info("Connected");
 
             input = new DataInputStream(System.in);
 
@@ -30,8 +30,13 @@ public class Client {
             in = new ObjectInputStream(socket.getInputStream());
             Game.LOGGER.info("Connected to server");
         }
+        catch (ConnectException e) {
+            Game.LOGGER.error(String.valueOf(e));
+            Game.LOGGER.error("Couldn't connect to server. Closing.");
+            return;
+        }
         catch (IOException i) {
-            System.out.println(i);
+            Game.LOGGER.error(String.valueOf(i));
             return;
         }
 

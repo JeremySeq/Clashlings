@@ -37,7 +37,7 @@ public class Server
 
             while (true) {
                 Socket socket = server.accept();
-                ServerGame.LOGGER.info("Client accepted");
+                ServerGame.LOGGER.debug("Client accepted");
 
                 Thread clientListener = new Thread(() -> {
                     try {

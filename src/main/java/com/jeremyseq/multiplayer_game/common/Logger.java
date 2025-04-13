@@ -5,12 +5,19 @@ import java.time.format.DateTimeFormatter;
 
 public record Logger(String identifier) {
 
+    public static final boolean DEBUG_MODE = true;
+    public static final boolean INCLUDE_THREAD_NAME = false;
+
     public void warning(String message) {
         System.err.println(this.create("WARNING", message));
     }
 
+    public void error(String message) {
+        System.err.println(this.create("ERROR", message));
+    }
+
     public void debug(String message) {
-        System.out.println(this.create("DEBUG", message));
+        if (DEBUG_MODE) System.out.println(this.create("DEBUG", message));
     }
 
     public void info(String message) {
@@ -18,6 +25,10 @@ public record Logger(String identifier) {
     }
 
     private String create(String type, String message) {
+        if (INCLUDE_THREAD_NAME) {
+            String threadName = Thread.currentThread().getName();
+            return "[" + getTime() + "] [" + this.identifier + "/" + threadName + "] [" + type + "]: " + message;
+        }
         return "[" + getTime() + "] [" + this.identifier + "] [" + type + "]: " + message;
     }
 

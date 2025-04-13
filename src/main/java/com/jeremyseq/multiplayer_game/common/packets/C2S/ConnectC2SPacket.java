@@ -21,7 +21,7 @@ public class ConnectC2SPacket extends Packet {
     @Override
     public void handle(ServerGame serverGame, Socket socket) {
         serverGame.connectPlayer(this.username, socket);
-        System.out.println("Connected player: " + username);
+        ServerGame.LOGGER.info(username + " joined the game");
     }
 
     @Override
