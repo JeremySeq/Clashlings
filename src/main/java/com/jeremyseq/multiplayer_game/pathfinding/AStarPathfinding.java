@@ -29,6 +29,10 @@ public class AStarPathfinding {
     }
 
     public List<Node> findPath(Node start, Node end) {
+        return findPath(start, end, true);
+    }
+
+    public List<Node> findPath(Node start, Node end, boolean diagonalMovement) {
         this.resetGrid();
         openList.clear();
         closedList.clear();
@@ -55,7 +59,7 @@ public class AStarPathfinding {
                 if (neighbor.isObstacle() || !neighbor.isGround() || closedList.contains(neighbor)) continue;
 
                 // Calculate tentative gCost for the neighbor
-                double tentativeGCost = currentNode.getGCost() + calculateHeuristic(currentNode, neighbor);
+                double tentativeGCost = currentNode.getGCost() + getMovementCost(currentNode, neighbor);
                 // If this path to neighbor is better or neighbor is not in open list
                 if (tentativeGCost < neighbor.getGCost() || !openList.contains(neighbor)) {
                     // Update costs and parent for the neighbor
@@ -85,27 +89,65 @@ public class AStarPathfinding {
 
     // Heuristic function to estimate the cost from node a to node b
     private double calculateHeuristic(Node a, Node b) {
-        // Using Manhattan distance
-        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
+        double dx = Math.abs(a.getX() - b.getX());
+        double dy = Math.abs(a.getY() - b.getY());
+        return Math.max(dx, dy) + (Math.sqrt(2) - 1) * Math.min(dx, dy);
     }
+
+    private double getMovementCost(Node a, Node b) {
+        int dx = Math.abs(a.getX() - b.getX());
+        int dy = Math.abs(a.getY() - b.getY());
+
+        if (dx == 1 && dy == 1) {
+            return Math.sqrt(2); // diagonal
+        } else if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1)) {
+            return 1.0; // cardinal
+        } else {
+            return 0.0; // shouldn't happen, but fallback
+        }
+    }
+
 
     // Method to get the neighbors of a given node
     private List<Node> getNeighbors(Node node) {
         List<Node> neighbors = new ArrayList<>();
-        int[][] directions = { {0, -1, 0}, {0, 1, 0}, {-1, 0, 0}, {1, 0, 0} };
+        int[][] directions = {
+                {0, -1, 0},
+                {0, 1, 0},
+                {-1, 0, 0},
+                {1, 0, 0},
+                {1, 1, 0},
+                {-1, -1, 0},
+                {-1, 1, 0},
+                {1, -1, 0}
+        };
 
         // Check for neighbors in the same layer
         for (int[] direction : directions) {
-            int newX = node.getX() + direction[0];
-            int newY = node.getY() + direction[1];
+            int dx = direction[0];
+            int dy = direction[1];
+            int newX = node.getX() + dx;
+            int newY = node.getY() + dy;
             int newZ = node.getZ();
-            if (newX >= 0 && newX < grid.getWidth() && newY >= 0 && newY < grid.getHeight()) {
-                Node neighbor = grid.getNode(newX, newY, newZ);
-                if (neighbor.isGround()) {
-                    neighbors.add(neighbor);
+
+            if (newX < 0 || newX >= grid.getWidth() || newY < 0 || newY >= grid.getHeight()) continue;
+
+            Node neighbor = grid.getNode(newX, newY, newZ);
+
+            // diagonal clipping prevention
+            if (dx != 0 && dy != 0) {
+                Node horizontal = grid.getNode(node.getX() + dx, node.getY(), node.getZ());
+                Node vertical = grid.getNode(node.getX(), node.getY() + dy, node.getZ());
+                if (horizontal.isObstacle() || vertical.isObstacle() || !horizontal.isGround() || !vertical.isGround()) {
+                    continue; // can't cut through corners
                 }
             }
+
+            if (neighbor.isGround()) {
+                neighbors.add(neighbor);
+            }
         }
+
 
         // Check for staircases and add target layer nodes as neighbors
         if (node.isStair()) {

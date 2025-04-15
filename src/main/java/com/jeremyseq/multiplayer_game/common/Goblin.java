@@ -30,6 +30,8 @@ public class Goblin implements Hitbox {
     private boolean flipped = false;
     public Vec2 deltaMovement = new Vec2(0, 0);
 
+    public AttackState attacking = AttackState.FALSE;
+
     private ServerPlayer closestPlayer = null;
 
     private Vec2 playerTargetPos = null;
@@ -72,7 +74,21 @@ public class Goblin implements Hitbox {
         }
 
         if (this.deltaMovement.equals(new Vec2(0, 0))) {
-            spriteRenderer.drawAnimation(g, imageObserver, 0, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
+            int animation = 0;
+            if (attacking != AttackState.FALSE) {
+                animation = 2;
+                if (attacking == AttackState.UP) {
+                    animation = 4;
+                } else if (attacking == AttackState.DOWN) {
+                    animation = 3;
+                } else if (attacking == AttackState.LEFT) {
+                    flipped = true;
+                } else if (attacking == AttackState.RIGHT) {
+                    flipped = false;
+                }
+            }
+
+            spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
         } else {
             if (this.deltaMovement.x < 0) {
                 flipped = true;
@@ -96,32 +112,45 @@ public class Goblin implements Hitbox {
     }
 
     /**
-     * Per-tick method to follow the path specified in currentPath.
+     * Per-tick method to handle all movement logic.
+     * If a path exists (currentPath is not empty), the entity will follow it node by node,
+     * updating its target position as it moves.
+     * If no path is present but a target position (targetPos) exists (e.g. from another AI goal),
+     * the entity will move directly to that target.
+     * If neither a path nor a target exists, the entity remains idle.
      */
-    public void followPath() {
-        if (this.currentPath.isEmpty()) {
-            this.deltaMovement = new Vec2(0, 0);
-            return;
+    public void handleMovement() {
+
+        // SPECIFICALLY FOR USING PATHS
+
+        if (!currentPath.isEmpty()) {
+
+            if (targetPos == null) {
+                // Initialize target position
+                Node node = this.currentPath.getFirst();
+                Vec2 tilePos = grid.gridPosToTilePos(node.getX(), node.getY());
+                if (this.game != null) {
+                    targetPos = this.game.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
+                } else {
+                    targetPos = this.serverGame.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
+                }
+                targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
+            }
+
+//            ServerGame.LOGGER.debug("nodes left in path: " + currentPath.size());
+
+            if (targetPos != null && targetPos.equals(this.position)) {
+                this.currentPath.removeFirst();
+                targetPos = null;
+                handleMovement();
+                return;
+            }
+
         }
+
+        // FOR GENERAL MOVEMENT USING TARGET POS
 
         if (targetPos == null) {
-            // Initialize target position
-            Node node = this.currentPath.get(0);
-            Vec2 tilePos = grid.gridPosToTilePos(node.getX(), node.getY());
-            if (this.game != null) {
-                targetPos = this.game.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
-            } else if (this.serverGame != null) {
-                targetPos = this.serverGame.level.getWorldPositionFromTilePosition(tilePos, Level.WORLD_TILE_SIZE);
-            }
-            targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
-        }
-
-//        System.out.println("nodes left in path: " + currentPath.size());
-
-        if (targetPos != null && targetPos.equals(this.position)) {
-            this.currentPath.remove(0);
-            targetPos = null;
-            followPath();
             return;
         }
 
@@ -129,26 +158,29 @@ public class Goblin implements Hitbox {
         Vec2 direction = targetPos.subtract(this.position).normalize();
 
         // Calculate the movement step
-        Vec2 step = direction.multiply(MOVE_SPEED);
-        this.deltaMovement = step;
+        this.deltaMovement = direction.multiply(MOVE_SPEED);
 
         // Move gradually towards the target position
-        this.position = this.position.add(step);
+        this.position = this.position.add(this.deltaMovement);
 
         // Check if the enemy has reached the target position
         if (this.position.distance(targetPos) <= MOVE_SPEED) {
             // Snap to target position and remove the node from the path
             this.position = targetPos;
-            this.currentPath.remove(0);
 
-            // Set the next target position if there are more nodes in the path
+            // if we are on a path
             if (!this.currentPath.isEmpty()) {
-                Node nextNode = this.currentPath.get(0);
-                Vec2 tilePos = grid.gridPosToTilePos(nextNode.getX(), nextNode.getY());
-                targetPos = new Vec2(tilePos.x * Level.WORLD_TILE_SIZE, tilePos.y * Level.WORLD_TILE_SIZE);
-                targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
-            } else {
-                targetPos = null; // Clear target position when path is empty
+                this.currentPath.removeFirst();
+
+                // Set the next target position if there are more nodes in the path
+                if (!this.currentPath.isEmpty()) {
+                    Node nextNode = this.currentPath.getFirst();
+                    Vec2 tilePos = grid.gridPosToTilePos(nextNode.getX(), nextNode.getY());
+                    targetPos = new Vec2(tilePos.x * Level.WORLD_TILE_SIZE, tilePos.y * Level.WORLD_TILE_SIZE);
+                    targetPos = targetPos.add(new Vec2(Level.WORLD_TILE_SIZE / 2f, Level.WORLD_TILE_SIZE / 2f));
+                } else {
+                    targetPos = null; // Clear target position when path is empty
+                }
             }
         }
     }
@@ -205,12 +237,23 @@ public class Goblin implements Hitbox {
         }
 
         // follows the set path
-        followPath();
+        handleMovement();
     }
 
-
+    /**
+     * Attacks players
+     * Assumes player is in adjacent tile
+     * If necessary, moves goblin toward player
+     * Target is this.closestPlayer
+     */
     private void attackPlayerGoal() {
+        float distanceAway = 40;
 
+        // direction from player to this enemy
+        Vec2 direction = this.position.subtract(closestPlayer.pos).normalize();
+
+        // set targetPos to be distanceAway from the player in that direction
+        targetPos = closestPlayer.pos.add(direction.multiply(distanceAway));
     }
 
     /**
@@ -224,6 +267,10 @@ public class Goblin implements Hitbox {
                 x * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE/2f,
                 y * Level.WORLD_TILE_SIZE + Level.WORLD_TILE_SIZE/2f
         ));
+        if (targetLayer == 0) {
+            ServerGame.LOGGER.warning("Goblin pathfinding crash: targetLayer=0 because player is not on a tile (Goblin.setPathToTile)");
+            return;
+        }
         x -= grid.getxOffset();
         y -= grid.getyOffset();
         Node end = grid.getNode(x, y, targetLayer-1);
