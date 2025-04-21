@@ -34,7 +34,7 @@ public class ServerPlayer implements Hitbox {
     public void tick() {
         if (attackTick != -1) {
             attackTick++;
-            final int ticksToAttack = 20; // number of server ticks to wait after beginning attack anim to actually attack
+            final int ticksToAttack = 14; // number of server ticks to wait after beginning attack anim to actually attack
             if (attackTick >= ticksToAttack) {
                 attackTick = -1;
                 this.attack(currentAttackState);
