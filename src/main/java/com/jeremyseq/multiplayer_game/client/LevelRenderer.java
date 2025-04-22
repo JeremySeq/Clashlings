@@ -194,7 +194,13 @@ public class LevelRenderer {
      */
     public void drawFoam(Graphics g, ImageObserver imageObserver) {
         ArrayList<Tile> outlineLayerTiles = this.level.getOuterTilesInLayer("1");
+        HashSet<String> hashSet = new HashSet<>();
         for (Tile tile : outlineLayerTiles) {
+            String positionKey = tile.x + "," + tile.y;
+            if (hashSet.contains(positionKey)) {
+                continue;
+            }
+            hashSet.add(positionKey);
             drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("foam"), 1+3*animationFrame, 1);
 
             drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y-1)* DRAW_SIZE, tilemaps.get("foam"), 1+3*animationFrame, 0);
