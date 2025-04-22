@@ -228,9 +228,18 @@ public class LevelRenderer {
      * draws tile shadows for a particular sublayer
      */
     public void drawShadowUnderElevationForLayer(Graphics g, ImageObserver imageObserver, String layer) {
-        for (Tile tile : this.level.tiles.get(layer)) {
+        // get outer tiles in layer
+        ArrayList<Tile> outerTiles = this.level.getOuterTilesInLayer(layer);
+        HashSet<String> hashSet = new HashSet<>();
+        for (Tile tile : outerTiles) {
             if (tile.tilemap.equals("elevation") && !(tile.j == 0 || tile.j == 4)) {
-                drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("shadows"), 1, 1);
+                String positionKey = tile.x + "," + tile.y;
+                if (hashSet.contains(positionKey)) {
+                    continue;
+                }
+                hashSet.add(positionKey);
+
+                drawTile(g, imageObserver, (tile.x) * DRAW_SIZE, (tile.y) * DRAW_SIZE, tilemaps.get("shadows"), 1, 1);
 
                 drawTile(g, imageObserver, (tile.x)* DRAW_SIZE, (tile.y-1)* DRAW_SIZE, tilemaps.get("shadows"), 1, 0);
                 drawTile(g, imageObserver, (tile.x+1)* DRAW_SIZE, (tile.y)* DRAW_SIZE, tilemaps.get("shadows"), 2, 1);
