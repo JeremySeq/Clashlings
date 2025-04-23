@@ -6,6 +6,7 @@ import com.jeremyseq.multiplayer_game.client.SpriteRenderer;
 import com.jeremyseq.multiplayer_game.client.sound.SoundPlayer;
 import com.jeremyseq.multiplayer_game.common.level.Level;
 import com.jeremyseq.multiplayer_game.common.level.Tile;
+import com.jeremyseq.multiplayer_game.common.packets.S2C.GoblinAttackS2CPacket;
 import com.jeremyseq.multiplayer_game.pathfinding.AStarPathfinding;
 import com.jeremyseq.multiplayer_game.pathfinding.Grid;
 import com.jeremyseq.multiplayer_game.pathfinding.Node;
@@ -27,10 +28,14 @@ public class Goblin implements Hitbox {
     public ArrayList<Node> currentPath = new ArrayList<>();
     private Vec2 targetPos;
     public static final float MOVE_SPEED = 1.6f;
+    public static final float ATTACK_RANGE = 30; // the targeted range for the AI
+    public static final float SLASH_RANGE = 60; // the actual range of the attack
+
     private boolean flipped = false;
     public Vec2 deltaMovement = new Vec2(0, 0);
 
     public AttackState attacking = AttackState.FALSE;
+    private int attackTick = 0;
 
     private ServerPlayer closestPlayer = null;
 
@@ -88,7 +93,10 @@ public class Goblin implements Hitbox {
                 }
             }
 
-            spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
+            boolean finished = spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
+            if (this.attacking != AttackState.FALSE && finished) {
+                this.attacking = AttackState.FALSE;
+            }
         } else {
             if (this.deltaMovement.x < 0) {
                 flipped = true;
@@ -225,19 +233,36 @@ public class Goblin implements Hitbox {
         return false;
     }
 
-    public void tick() {
+    public void serverTick() {
+        if (this.attacking != AttackState.FALSE) {
+            this.deltaMovement = new Vec2(0, 0);
+            this.attackTick++;
+            if (this.attackTick == 14) {
+                if (this.closestPlayer != null && this.closestPlayer.pos.distance(this.position) <= SLASH_RANGE) {
+                    this.closestPlayer.hurt(3);
+                }
+            }
+
+            final int attackDuration = 60; // number of server ticks to wait after beginning attack anim to reset and attack again
+            // basically attack cooldown
+            if (this.attackTick >= attackDuration) {
+                this.attackTick = 0;
+                this.attacking = AttackState.FALSE;
+            }
+        }
+
         // sets the path to follow the player
         boolean followPlayerResult = followPlayerGoal();
 
         // if goblin is next to player, attack
         if (followPlayerResult) {
-            // TODO: Attack player
-            ServerGame.LOGGER.debug("Next to " + closestPlayer.username + ", attacking!");
             attackPlayerGoal();
         }
 
-        // follows the set path
-        handleMovement();
+        if (this.attacking == AttackState.FALSE) {
+            // follows the set path
+            handleMovement();
+        }
     }
 
     /**
@@ -247,13 +272,59 @@ public class Goblin implements Hitbox {
      * Target is this.closestPlayer
      */
     private void attackPlayerGoal() {
-        float distanceAway = 40;
+        final float buffer = 10;
 
         // direction from player to this enemy
-        Vec2 direction = this.position.subtract(closestPlayer.pos).normalize();
+        Vec2 direction = this.position.subtract(closestPlayer.pos);
 
-        // set targetPos to be distanceAway from the player in that direction
-        targetPos = closestPlayer.pos.add(direction.multiply(distanceAway));
+        // prevent divide-by-zero
+        if (direction.length() == 0) {
+            direction = new Vec2(1, 0); // default to the right
+        } else {
+            direction = direction.normalize();
+        }
+
+        // set targetPos to be ATTACK_RANGE from the player in that direction
+        targetPos = closestPlayer.pos.add(direction.multiply(ATTACK_RANGE));
+
+        if (this.closestPlayer != null && this.closestPlayer.pos.distance(this.position) <= ATTACK_RANGE+buffer) {
+            // determine attack direction
+            AttackState attackState = getAttackState();
+
+            // if the goblin is not already attacking, set the attack state
+            if (this.attacking == AttackState.FALSE) {
+                this.attacking = attackState;
+
+                // send the attack animation to clients
+                if (this.serverGame != null) {
+                    this.serverGame.server.sendToEachPlayer(new GoblinAttackS2CPacket(this.id, attackState));
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculate the attack direction based on the position of the goblin and the closest player.
+     */
+    private AttackState getAttackState() {
+        float dx = this.position.x - closestPlayer.pos.x;
+        float dy = this.position.y - closestPlayer.pos.y;
+
+        AttackState attackState;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) {
+                attackState = AttackState.LEFT;
+            } else {
+                attackState = AttackState.RIGHT;
+            }
+        } else {
+            if (dy > 0) {
+                attackState = AttackState.UP;
+            } else {
+                attackState = AttackState.DOWN;
+            }
+        }
+        return attackState;
     }
 
     /**

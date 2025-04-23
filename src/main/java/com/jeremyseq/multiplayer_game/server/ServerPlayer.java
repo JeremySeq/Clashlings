@@ -5,8 +5,8 @@ import com.jeremyseq.multiplayer_game.common.Goblin;
 import com.jeremyseq.multiplayer_game.common.Hitbox;
 import com.jeremyseq.multiplayer_game.common.Vec2;
 import com.jeremyseq.multiplayer_game.common.packets.S2C.EnemyHitS2CPacket;
+import com.jeremyseq.multiplayer_game.common.packets.S2C.PlayerHitS2CPacket;
 
-import java.io.IOException;
 import java.net.Socket;
 
 public class ServerPlayer implements Hitbox {
@@ -15,6 +15,9 @@ public class ServerPlayer implements Hitbox {
     public String username;
     public Vec2 pos;
     public Vec2 deltaMovement = new Vec2(0, 0);
+
+    public static final float DEFAULT_HEALTH = 40;
+    private float health = DEFAULT_HEALTH;
 
     private int attackTick = -1;
     private AttackState currentAttackState = null;
@@ -29,6 +32,20 @@ public class ServerPlayer implements Hitbox {
     public void beginAttack(AttackState attackState) {
         attackTick = 0;
         currentAttackState = attackState;
+    }
+
+    /**
+     * Hurt the player by a certain amount of damage. Sent and handled on all clients.
+     */
+    public void hurt(float damage) {
+        this.health -= damage;
+        if (health <= 0) {
+            ServerGame.LOGGER.debug(this.username + " died");
+            // TODO: make player actually die
+            health = 0;
+        }
+        // send new health to all clients
+        this.serverGame.server.sendToEachPlayer(new PlayerHitS2CPacket(this.username, this.health));
     }
 
     public void tick() {
@@ -97,11 +114,7 @@ public class ServerPlayer implements Hitbox {
                 enemy.hurt(2);
 
                 // notify all players about the enemy hit and its updated health
-                try {
-                    serverGame.server.sendToEachPlayer(new EnemyHitS2CPacket(enemy.id, enemy.health));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                serverGame.server.sendToEachPlayer(new EnemyHitS2CPacket(enemy.id, enemy.health));
             }
         }
     }

@@ -103,7 +103,7 @@ public class Server
 
             if (!this.serverGame.players.isEmpty()) {
                 for (Goblin goblin : this.serverGame.enemies.values()) {
-                    goblin.tick();
+                    goblin.serverTick();
                 }
             }
 
@@ -129,10 +129,14 @@ public class Server
         }
     }
 
-    public void sendToEachPlayer(Packet packet) throws IOException {
+    public void sendToEachPlayer(Packet packet) {
         for (ServerPlayer player : this.serverGame.players) {
             ObjectOutputStream out = outputStreamHashMap.get(player.socket);
-            out.writeObject(packet);
+            try {
+                out.writeObject(packet);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

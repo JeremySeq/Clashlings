@@ -6,6 +6,7 @@ import com.jeremyseq.multiplayer_game.common.Hitbox;
 import com.jeremyseq.multiplayer_game.common.level.Building;
 import com.jeremyseq.multiplayer_game.common.level.Tile;
 import com.jeremyseq.multiplayer_game.common.Vec2;
+import com.jeremyseq.multiplayer_game.server.ServerPlayer;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -22,6 +23,10 @@ public class ClientPlayer implements Hitbox {
     private boolean flipped;
     public Vec2 deltaMovement = new Vec2(0, 0);
     public AttackState attacking = AttackState.FALSE;
+
+    public float health = ServerPlayer.DEFAULT_HEALTH;
+
+    private boolean animateHurt = false;
 
     public int currentLayer = 1;
     private boolean onStairs = false;
@@ -84,7 +89,10 @@ public class ClientPlayer implements Hitbox {
 
         // draw animation
         Vec2 renderPos = game.getRenderPositionFromWorldPosition(position);
-        boolean finished = this.spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped);
+
+        boolean finished = this.spriteRenderer.drawAnimation(g, imageObserver, animation, (int) renderPos.x, (int) renderPos.y, flipped, animateHurt);
+
+        this.animateHurt = false;
 
         if (finished && attacking != AttackState.FALSE) {
             attacking = AttackState.FALSE;
@@ -110,6 +118,12 @@ public class ClientPlayer implements Hitbox {
         g.setFont(new Font("Jetbrains Mono", Font.PLAIN, 16));
         Rectangle2D bounds = g.getFont().getStringBounds(username, g.getFontMetrics().getFontRenderContext());
         g.drawString(username, (int) ((int) renderPos.x - bounds.getWidth()/2), (int) ((int) renderPos.y + bounds.getHeight() + 25));
+    }
+
+    public void hurt(float newHealth) {
+        this.health = newHealth;
+        // TODO: trigger sound
+        this.animateHurt = true;
     }
 
     public void attack(AttackState attackSide) {

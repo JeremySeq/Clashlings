@@ -32,6 +32,7 @@ public class Game extends JPanel implements ActionListener, Camera {
     public KeyHandler keyHandler = new KeyHandler();
     public MouseHandler mouseHandler = new MouseHandler(this);
     public LevelRenderer levelRenderer = new LevelRenderer(this);
+    public HUDRenderer HUDRenderer = new HUDRenderer(this);
     public Hashtable<Long, Goblin> enemies = new Hashtable<>();
 
     private Timer timer;
@@ -98,6 +99,8 @@ public class Game extends JPanel implements ActionListener, Camera {
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
         }
+
+        HUDRenderer.draw(g);
     }
 
     @Override
