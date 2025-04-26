@@ -4,9 +4,9 @@ import com.jeremyseq.multiplayer_game.Server;
 import com.jeremyseq.multiplayer_game.client.LevelRenderer;
 import com.jeremyseq.multiplayer_game.common.Goblin;
 import com.jeremyseq.multiplayer_game.common.Logger;
+import com.jeremyseq.multiplayer_game.common.level.Building;
 import com.jeremyseq.multiplayer_game.common.level.Level;
 import com.jeremyseq.multiplayer_game.common.level.LevelReader;
-import com.jeremyseq.multiplayer_game.common.Vec2;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -23,13 +23,20 @@ public class ServerGame {
 
     public ServerGame(Server server) {
         this.server = server;
-        enemies.put(0L, new Goblin(this, level, new Vec2(0, 0)));
     }
 
     public void tick() {
         for (ServerPlayer player : players) {
             player.tick();
         }
+
+        for (ArrayList<Building> buildingList : this.level.buildings.values()) {
+            for (Building building : buildingList) {
+                building.tick(this);
+            }
+        }
+
+        this.enemies.values().removeIf(Goblin::getisDead);
     }
 
     public ServerPlayer getPlayerBySocket(Socket socket) {

@@ -31,7 +31,7 @@ public class EnemyPositionS2CPacket extends Packet {
         Vec2 position = Vec2.fromString(this.position);
         Goblin enemy = game.enemies.get(this.id);
         if (enemy == null) {
-            enemy = new Goblin(game, game.level, position);
+            enemy = new Goblin(this.id, game, game.level, position);
             game.enemies.put(this.id, enemy);
         } else {
             enemy.position = position;

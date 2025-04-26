@@ -2758,6 +2758,13 @@
         "state": "BUILT"
       }
     ],
-    "3": []
+    "3": [
+      {
+        "type": "GOBLIN_HUT",
+        "x": 11,
+        "y": -4,
+        "state": "BUILT"
+      }
+    ]
   }
 }

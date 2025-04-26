@@ -21,7 +21,7 @@ import java.util.List;
 public class Goblin implements Hitbox {
     public Game game; // on client only
     public ServerGame serverGame; // on server only
-    public long id;
+    public final long id;
     public Level level;
     public Vec2 position;
     public Grid grid;
@@ -33,6 +33,12 @@ public class Goblin implements Hitbox {
 
     private boolean flipped = false;
     public Vec2 deltaMovement = new Vec2(0, 0);
+
+    /**
+     * Set to true within hurt() if the goblin is dead.
+     * Later used to remove from game without Concurrent Modification Exception
+     */
+    private boolean isDead = false;
 
     public AttackState attacking = AttackState.FALSE;
     private int attackTick = 0;
@@ -50,14 +56,16 @@ public class Goblin implements Hitbox {
     private AStarPathfinding pathfinder = null;
 
     // for use on client
-    public Goblin(Game game, Level level, Vec2 position) {
+    public Goblin(long id, Game game, Level level, Vec2 position) {
+        this.id = id;
         this.game = game;
         this.level = level;
         this.position = position;
     }
 
     // for use on server
-    public Goblin(ServerGame serverGame, Level level, Vec2 position) {
+    public Goblin(long id, ServerGame serverGame, Level level, Vec2 position) {
+        this.id = id;
         this.serverGame = serverGame;
         this.level = level;
         this.position = position;
@@ -265,6 +273,10 @@ public class Goblin implements Hitbox {
         }
     }
 
+    public boolean getisDead() {
+        return isDead;
+    }
+
     /**
      * Attacks players
      * Assumes player is in adjacent tile
@@ -388,12 +400,12 @@ public class Goblin implements Hitbox {
         if (health <= 0) {
             // if client side
             if (game != null) {
-                game.enemies.remove(this.id);
+                this.isDead = true;
                 SoundPlayer.playSound(SoundPlayer.Sounds.ENEMY_DEATH);
             }
             // if server side
             if (serverGame != null) {
-                serverGame.enemies.remove(this.id);
+                this.isDead = true;
             }
         } else {
             if (game != null) {

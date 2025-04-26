@@ -1,5 +1,7 @@
 package com.jeremyseq.multiplayer_game.common.level;
 
+import com.jeremyseq.multiplayer_game.server.ServerGame;
+
 public class Building {
     public BuildingType type;
     public int x;
@@ -11,5 +13,9 @@ public class Building {
         this.x = x;
         this.y = y;
         this.state = state;
+    }
+
+    public void tick(ServerGame serverGame) {
+
     }
 }

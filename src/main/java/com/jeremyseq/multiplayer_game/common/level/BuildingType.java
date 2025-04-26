@@ -12,7 +12,11 @@ public enum BuildingType {
     TOWER("/TinySwordsPack/Factions/Knights/Buildings/Tower/Tower_Blue.png",
             "/TinySwordsPack/Factions/Knights/Buildings/Tower/Tower_Construction.png",
             "/TinySwordsPack/Factions/Knights/Buildings/Tower/Tower_Destroyed.png",
-            2, 4);
+            2, 4),
+    GOBLIN_HUT("/TinySwordsPack/Factions/Goblins/Buildings/Wood_House/Goblin_House.png",
+            "/TinySwordsPack/Factions/Goblins/Buildings/Wood_House/Goblin_House.png",
+            "/TinySwordsPack/Factions/Goblins/Buildings/Wood_House/Goblin_House_Destroyed.png",
+            2, 3);
 
     public final String imageFileName;
     public final String constructionImageFileName;

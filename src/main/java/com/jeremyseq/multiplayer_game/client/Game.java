@@ -95,6 +95,7 @@ public class Game extends JPanel implements ActionListener, Camera {
         for (Goblin goblin : this.enemies.values()) {
             goblin.draw(g, this);
         }
+        this.enemies.values().removeIf(Goblin::getisDead);
 
         for (ClientPlayer player : this.players) {
             player.draw(g, this);
