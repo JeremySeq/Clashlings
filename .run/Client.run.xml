@@ -2,7 +2,7 @@
   <configuration default="false" name="Client" type="Application" factoryName="Application" singleton="false">
     <option name="ALTERNATIVE_JRE_PATH" value="23" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="MAIN_CLASS_NAME" value="com.jeremyseq.multiplayer_game.Client" />
+    <option name="MAIN_CLASS_NAME" value="com.jeremyseq.clashlings.Client" />
     <module name="multiplayer-game" />
     <option name="PROGRAM_PARAMETERS" value="--ip=localhost --debug" />
     <method v="2">
